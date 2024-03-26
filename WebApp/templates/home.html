@@ -1,10 +1,101 @@
 {% extends "base.html" %}
 {% block title %}Inicio{% endblock %}
+{% load static %}
 
 
 {% block content %}
 
-Holaaaaaaaaaaa
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .text {
+        margin: 20px;
+        padding: 20px;
+        background-color: #f6f3ee;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .image {
+        max-width: 100%;
+        max-height: 270px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-container {
+        display: flex;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .text-container {
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<div class="container">
+    <div class="text-container">
+        <img src="{% static 'images/foto2.jpg' %}" alt="Imagen Fonoaudiología" class="image">
+        <div class="text">
+            <h2>¿Cuál es la función de los fonoaudiólogos?</h2>
+            <p>Los fonoaudiólogos son profesionales especializados en la prevención, evaluación, diagnóstico y
+                tratamiento de los trastornos relacionados con la comunicación humana, el lenguaje, el habla, la voz y
+                las funciones auditivas y orales.</p>
+            <p>Ellos trabajan con personas de todas las edades, desde niños hasta adultos mayores, y abordan una
+                variedad de condiciones, como dificultades del habla y del lenguaje, trastornos de la voz, problemas de
+                deglución, y más.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="text-container">
+        <div class="text">
+            <h2>¿Por qué es importante la fonoaudiología?</h2>
+            <p>La fonoaudiología es crucial porque ayuda a las personas a desarrollar y mejorar sus habilidades de
+                comunicación, lo que afecta su calidad de vida en todas las áreas. Al abordar problemas de habla,
+                lenguaje, voz y audición, los fonoaudiólogos pueden facilitar la comunicación efectiva y mejorar la
+                autonomía y la participación social de las personas.</p>
+            <p>Además, la fonoaudiología también juega un papel importante en la detección temprana y el tratamiento de
+                trastornos del habla y del lenguaje en niños, lo que puede tener un impacto significativo en su
+                desarrollo y éxito académico en el futuro.</p>
+            <a href="#" class="btn btn-primary btn-reservar-hora">RESERVAR HORA</a>
+        </div>
+        <img src="{% static 'images/foto1.jpg' %}" alt="Imagen Fonoaudiología" class="image">
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="text-container">
+        <div class="text" style="background-color: #f6f3ee; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h2 style="margin-bottom: 20px;">¿Qué tipo de trastornos trata la fonoaudiología?</h2>
+            <p>La fonoaudiología aborda una amplia gama de trastornos relacionados con la comunicación humana. Algunos de
+                los trastornos más comunes tratados por los fonoaudiólogos incluyen:</p>
+            <ul>
+                <li>Dificultades del habla y del lenguaje</li>
+                <li>Trastornos de la voz</li>
+                <li>Problemas de deglución</li>
+                <li>Trastornos del desarrollo del lenguaje en niños</li>
+                <li>Problemas de audición y procesamiento auditivo</li>
+                <li>Lesiones cerebrales que afectan la comunicación</li>
+            </ul>
+            <p>Los fonoaudiólogos utilizan una variedad de técnicas y terapias para evaluar, diagnosticar y tratar estos
+                trastornos, con el objetivo de mejorar la comunicación y la calidad de vida de sus pacientes.</p>
+        </div>
+    </div>
+</div>
+
+<hr>
 
 
 {% endblock %}

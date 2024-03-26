@@ -35,6 +35,7 @@
         .nav-link:hover {
             color: black;
             font-size: 17px;
+            font-weight: bold;
             /* Cambiar color al pasar el mouse */
         }
 
@@ -51,6 +52,8 @@
             /* Cambiar el color de fondo del body */
             margin-bottom: 10vh;
             /* Reservar espacio para el footer */
+            font-family: 'Roboto', sans-serif;
+            /* Cambiar la fuente a Roboto */
         }
 
         .footer {
@@ -72,6 +75,7 @@
             /* Cambiar la fuente a Roboto */
             letter-spacing: 1px;
             /* Espaciado entre letras */
+            margin-top: 10px;
         }
 
         .footer p {
