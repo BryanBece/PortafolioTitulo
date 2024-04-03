@@ -75,12 +75,15 @@ WSGI_APPLICATION = 'FonoSolutions.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": 'portafolio',
+        "USER": 'admin',
+        "PASSWORD": 'admin123456',
+        "HOST": 'portafolio.cd6ka2ac2pkq.sa-east-1.rds.amazonaws.com',
+        "PORT": 3306,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
