@@ -32,10 +32,12 @@
             margin-right: 10px;
             /* Espacio entre elementos del navbar */
         }
+
         .nav-link:hover {
             color: black;
             font-size: 17px;
             font-weight: bold;
+            transition: all 0.5s ease-in-out;
             /* Cambiar color al pasar el mouse */
         }
 
@@ -48,10 +50,8 @@
         }
 
         body {
-            background-color: #f9f7fb;
+            background-color: #f6f3ee;
             /* Cambiar el color de fondo del body */
-            margin-bottom: 10vh;
-            /* Reservar espacio para el footer */
             font-family: 'Roboto', sans-serif;
             /* Cambiar la fuente a Roboto */
         }
@@ -59,20 +59,15 @@
         .footer {
             background-color: #f6f3ee;
             /* Color de fondo del footer */
-            bottom: 0;
-            /* Alinear al fondo de la ventana */
             width: 100%;
             /* Ancho completo */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+
             font-family: 'Roboto', sans-serif;
             /* Cambiar la fuente a Roboto */
             letter-spacing: 1px;
             /* Espaciado entre letras */
         }
-        
+
 
         .footer p {
             margin: 0;
