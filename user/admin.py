@@ -1,15 +1,15 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Log
+from .models import *
 
       
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     model = User
-    list_display = ['id','email', 'nombre', 'apellido','is_staff', 'is_superuser']
-    search_fields = ['email', 'nombre', 'apellido']
+    list_display = ['id','email', 'tipoUsuario','nombre', 'apellido','is_staff', 'is_superuser']
+    search_fields = ['email','tipoUsuario', 'nombre', 'apellido']
     fieldsets = (
-        (None, {'fields': ('username','email', 'password')}),
+        (None, {'fields': ('username','email', 'password', 'tipoUsuario')}),
         ('Información personal', {'fields': ('nombre', 'apellido')}),
         ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Fechas importantes', {'fields': ('last_login', 'date_joined')}),
@@ -27,3 +27,7 @@ class LogInicioSesionAdmin(admin.ModelAdmin):
     list_display = ['id', 'username', 'fecha_inicio', 'texto']
 
 
+@admin.register(TipoUsuario)
+class TipoUsuarioAdmin(admin.ModelAdmin):
+    list_display = ['id', 'tipoUsuario']
+    search_fields = ['tipoUsuario']

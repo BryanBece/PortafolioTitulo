@@ -5,6 +5,14 @@ from django.utils import timezone
 
 # Create your models here.
 
+
+#Tipo de Usuario
+class TipoUsuario(models.Model):
+    tipoUsuario = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.tipoUsuario
+
 # Custom User Manager
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -36,6 +44,7 @@ class User(AbstractUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
+    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
 
 
     USERNAME_FIELD = 'email'
