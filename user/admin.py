@@ -7,7 +7,7 @@ from .models import *
 class CustomUserAdmin(UserAdmin):
     model = User
     list_display = ['id','email', 'tipoUsuario','nombre', 'apellido','is_staff', 'is_superuser']
-    search_fields = ['email','tipoUsuario', 'nombre', 'apellido']
+    search_fields = ['email','tipoUsuario' 'nombre', 'apellido']
     fieldsets = (
         (None, {'fields': ('username','email', 'password', 'tipoUsuario')}),
         ('Información personal', {'fields': ('nombre', 'apellido')}),
