@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 
 #NOMENCLATURA CAMELCASE ejemplo: estoEsUnEjemplo
+#Prueba
 
 #Vista home
 def home(request):
