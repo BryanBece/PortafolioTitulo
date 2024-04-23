@@ -51,6 +51,14 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-chart-bar"></i> Reportes</a>
           </li>
+          {% endif %}
+          {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-user-plus"></i> Registro Pacientes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-file-medical"></i> Ficha Clínica</a>
+          </li>
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-calendar-plus"></i> Reservar hora</a>

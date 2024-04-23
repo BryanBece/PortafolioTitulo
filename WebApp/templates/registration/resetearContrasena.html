@@ -1,26 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Iniciar Sesión{% endblock %}
+{% block title %}Restablecer Contraseña{% endblock %}
 
 {% block content %}
 
-
 <section>
-    <form action="/login/" method="post">
+    <form action="" method="post">
         {% csrf_token %}
-        <h1>Iniciar Sesión</h1>
+        <h1>Restablecer Contraseña</h1>
         <div class="inputbox">
             <input type="email" name="email" id="email" required>
-            <label for="email">Correo Electrónico</label>
+            <label for="email">Ingrese Su Correo Electrónico</label>
         </div>
-        <div class="inputbox">
-            <input type="password" name="password" id="password" required>
-            <label for="password">Contraseña</label>
-        </div>
-        <div class="forget">
-            <a href="{% url 'resetearContrasena' %}">¿Olvidaste tu contraseña?</a>
-        </div>
-        <button type="submit">Iniciar Sesión</button>
+        <button type="submit">Enviar Correo</button>
     </form>
 </section>
 
@@ -132,6 +124,7 @@
         color: #fff;
     }
 </style>
+
 
 
 {% endblock %}
