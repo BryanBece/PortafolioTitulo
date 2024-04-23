@@ -21,4 +21,6 @@ urlpatterns = [
     path('oirs/', oirs, name='oirs'),
     #Reserva
     path('reserva/', reserva, name='reserva'),
+    #RegistroFono
+    path('registroFono/', registroFono, name='registroFono'),
 ]

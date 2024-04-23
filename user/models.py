@@ -7,11 +7,13 @@ from django.utils import timezone
 
 
 #Tipo de Usuario
-class TipoUsuario(models.Model):
-    tipoUsuario = models.CharField(max_length=100)
-    
+class tipo_usuario(models.Model):
+
+    id = models.AutoField(primary_key=True, verbose_name="id_tipo_usuario")
+    nombre_tipo_usuario = models.CharField(max_length=20)
+
     def __str__(self):
-        return self.tipoUsuario
+        return self.nombre_tipo_usuario
 
 # Custom User Manager
 class CustomUserManager(UserManager):
@@ -44,7 +46,7 @@ class User(AbstractUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
+    tipoUsuario = models.ForeignKey(tipo_usuario, on_delete=models.CASCADE)
 
 
     USERNAME_FIELD = 'email'

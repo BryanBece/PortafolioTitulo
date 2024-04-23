@@ -27,7 +27,7 @@ class LogInicioSesionAdmin(admin.ModelAdmin):
     list_display = ['id', 'username', 'fecha_inicio', 'texto']
 
 
-@admin.register(TipoUsuario)
+@admin.register(tipo_usuario)
 class TipoUsuarioAdmin(admin.ModelAdmin):
-    list_display = ['id', 'tipoUsuario']
-    search_fields = ['tipoUsuario']
+    list_display = ['id', 'nombre_tipo_usuario']
+    search_fields = ['nombre_tipo_usuario']

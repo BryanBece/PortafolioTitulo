@@ -44,11 +44,25 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'perfil' %}"><i class="fas fa-user"></i> Perfil</a>
           </li>
+          {% if user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'registroFono' %}"><i class="fas fa-user-plus"></i> Registro Fonoaudiologos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-chart-bar"></i> Reportes</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-calendar-plus"></i> Reservar hora</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+          </li>
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a>
           </li>
-          {% endif %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'equipo' %}"><i class="fas fa-user-md"></i> Nuestros Especialistas</a>
           </li>
@@ -58,16 +72,12 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'oirs' %}"><i class="fas fa-comments"></i> OIRS</a>
           </li>
-          {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
-          </li>
           {% endif %}
         </ul>
       </div>
       <!-- Botón "Reservar hora" en el lado derecho -->
       <div class="d-flex">
-        <a class="btn btn-primary btn-reservar-hora" href="{% url 'reserva' %}" role="button">Reservar hora</a>
+        <a class="btn btn-primary btn-reservar-hora" href="{% url 'reserva' %}" role="button"><i class="fas fa-calendar-plus"></i> Reservar hora</a>
       </div>
     </div>
   </nav>
