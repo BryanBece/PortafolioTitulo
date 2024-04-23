@@ -6,10 +6,10 @@ from user.models import *
 from .forms import *
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -89,36 +89,26 @@ def restablecerContrasena(request, id, token):
 def resetearContrasena(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        print(email)
         if User.objects.filter(email=email).exists():
-            #Obtener ID del usuario
             user = User.objects.get(email=email)
-            print("User: ", user)
             try:
                 token = default_token_generator.make_token(user)
-                print("Token: ", token)
                 reset_url = reverse('restablecerContrasena', args=[user.id, token])
-                print("Reset URL: ", reset_url)
+                subject = 'Restablecer Contraseña - COFAM'
+                link = request.build_absolute_uri(reset_url)
+                html_message = render_to_string('registration/reset_password_email.html', {'reset_url': link})
+
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
                 
-                subject = 'Restablecer contraseña'
-                message = f'Para restablecer tu contraseña, haz clic en el siguiente enlace: {request.build_absolute_uri(reset_url)}'
-                print("Message: ", message)
-                from_email = settings.EMAIL_HOST_USER
-                print("From Email: ", from_email)
-                recipient_list = [email]
-                print("Recipient List: ", recipient_list)
-                
-                send_mail(subject, message, from_email, recipient_list, fail_silently=False)
-                             
                 messages.success(request, 'Correo enviado con éxito.')
-            
             except Exception as e:
                 messages.error(request, 'Error al enviar el correo')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             messages.error(request, 'El correo no está registrado')
-    
+
     return render(request, 'registration/resetearContrasena.html')
+
    
 
 
