@@ -31,7 +31,7 @@ def login(request):
 
         if user is not None:
             auth.login(request, user)
-            messages.success(request, "Bienvenido")
+            messages.success(request, "Bienvenido " + user.nombre + " " + user.apellido)
             return redirect("perfil") 
         else:
             messages.error(request, "Credenciales incorrectas")
@@ -68,8 +68,8 @@ def reserva(request):
 #Restablecer Contrseña
 def restablecerContrasena(request, id, token):
     if request.method == 'POST':
-        password = request.POST.get('contrasena')
-        password2 = request.POST.get('confirmar_contrasena')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
         
         if password == password2:
             user = User.objects.get(id=id)
@@ -111,7 +111,6 @@ def resetearContrasena(request):
 
    
 
-
 #Registro Fonoaudiologos
 def registroFono(request):
     data = {
@@ -147,3 +146,60 @@ def registroFono(request):
             data["form"] = formulario
     
     return render(request, 'registration/registroFono.html', data)
+
+
+#Registro Paciente-Tutor
+def registroPacienteTutor(request):
+    data ={
+        'formPac': RegistroPacienteForm(),
+        'formTut': RegistroTutorForm()
+    }
+    
+    if request.method == 'POST':
+        formularioPaciente = RegistroPacienteForm(request.POST)
+        formularioTutor = RegistroTutorForm(request.POST)
+        if formularioPaciente.is_valid() and formularioTutor.is_valid():
+            nombreTutor = formularioTutor.cleaned_data.get('nombre')
+            apellidoTutor = formularioTutor.cleaned_data.get('apellido')
+            correoTutor = formularioTutor.cleaned_data.get('email')
+            
+            if User.objects.filter(email=correoTutor).exists():
+                messages.error(request, "El correo del tutor ya está registrado.")
+            else:
+                #Crear Tutor
+                formularioTutor.save()
+                
+                tut = Tutor.objects.get(email=correoTutor)
+                print(tut)
+                pac = Paciente()
+                pac.nombre = formularioPaciente.cleaned_data.get('nombre')
+                pac.apellido = formularioPaciente.cleaned_data.get('apellido')
+                pac.rut = formularioPaciente.cleaned_data.get('rut')
+                pac.fechaNacimiento = formularioPaciente.cleaned_data.get('fechaNacimiento')
+                pac.genero = formularioPaciente.cleaned_data.get('genero')
+                pac.telefono = formularioPaciente.cleaned_data.get('telefono')
+                pac.direccion = formularioPaciente.cleaned_data.get('direccion')
+                pac.comuna = formularioPaciente.cleaned_data.get('comuna')
+                pac.tutor = tut
+                pac.save()
+                
+               
+                                    
+                
+                # Crear un nuevo usuario
+                usuTut = User()
+                usuTut.username = correoTutor
+                usuTut.email = correoTutor
+                usuTut.nombre = nombreTutor
+                usuTut.apellido = apellidoTutor
+                tipo_usuario_tutor = tipo_usuario.objects.get(nombre_tipo_usuario='Tutor')
+                usuTut.tipoUsuario = tipo_usuario_tutor
+                usuTut.save()
+                
+                messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados')
+                return redirect('perfil')
+            
+        else:
+            data["formPac"] = formularioPaciente
+            data["formTut"] = formularioTutor
+    return render(request, 'registration/registroPacienteTutor.html', data)

@@ -61,7 +61,7 @@ class Tutor(models.Model):
     rut = models.CharField(max_length=10)
     genero = models.ForeignKey(Genero, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=9)
-    email = models.EmailField(max_length=100)
+    email = models.EmailField(max_length=100, unique=True)
     
     def __str__(self):
         return f'{self.nombre} {self.apellido}'
@@ -75,7 +75,6 @@ class Paciente(models.Model):
     fechaNacimiento = models.DateField(default=timezone.now)
     genero = models.ForeignKey(Genero, on_delete=models.CASCADE)
     telefono = models.CharField(max_length=9)
-    email = models.EmailField(max_length=100)
     direccion = models.CharField(max_length=100)
     comuna = models.ForeignKey(Comuna, on_delete=models.CASCADE)
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)

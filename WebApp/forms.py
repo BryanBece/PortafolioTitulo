@@ -1,5 +1,7 @@
 from django import forms
 from .models import *
+from django.contrib.admin.widgets import AdminDateWidget
+from django.forms.fields import DateField
 
 
 #Formulario de Registro Fonoaudiologo
@@ -25,4 +27,51 @@ class RegistroFonoForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'clinica': forms.Select(attrs={'class': 'form-control'}),
+        }
+        
+#Formulario de Registro Paciente
+class RegistroPacienteForm(forms.ModelForm):
+    class Meta:
+        model = Paciente
+        fields = '__all__'
+        exclude = ['id', 'fonoaudiologo', 'tutor']
+        labels = {
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'rut': 'Rut',
+            'genero': 'Genero',
+            'telefono': 'Telefono',
+            'fechaNacimiento': 'Fecha de Nacimiento',
+        }
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
+            'rut': forms.TextInput(attrs={'class': 'form-control'}),
+            'genero': forms.Select(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'fechaNacimiento': forms.DateInput(attrs={'class': 'form-control'}),
+        }
+        
+#Formulario de Registro Tutor
+class RegistroTutorForm(forms.ModelForm):
+    class Meta:
+        model = Tutor
+        fields = '__all__'
+        exclude = ['id']
+        labels = {
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'rut': 'Rut',
+            'genero': 'Genero',
+            'telefono': 'Telefono',
+            'email': 'Email',
+        }
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
+            'rut': forms.TextInput(attrs={'class': 'form-control'}),
+            'genero': forms.Select(attrs={'class': 'form-control'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }

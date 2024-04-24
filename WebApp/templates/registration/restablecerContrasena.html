@@ -4,30 +4,49 @@
 
 {% block content %}
 
-<div class="container-sm">
-    <hr>
-    <h1>Reestablecer contraseña</h1>
-    <form method="POST" action="" id="modal-post-form">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-6 col-sm-4">
-                <div class="form-group">
-                    <label for="password">Contraseña nueva:</label>
-                    <input type="password" class="form-control bg-light" id="contrasena" name="contrasena" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Restablecer Contraseña</div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            <label for="password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" name="password" id="password" class="form-control" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="password2" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" name="password2" id="password2" class="form-control" required>
+                        </div>
+                        <button type="submit" >Cambiar Contraseña</button>
+                    </form>
                 </div>
             </div>
-            <div class="col-6 col-sm-4">
-                <div class="form-group">
-                    <label for="password">Confirmar contraseña:</label>
-                    <input type="password" class="form-control bg-light" id="confirmar_contrasena" name="confirmar_contrasena" required>
-                </div>  
-            </div>
-                <button class="btn btn-primary" type="submit">Guardar</button>
-            </div>
         </div>
-
-    </form>
-    <hr>
+    </div>
 </div>
+
+<style>
+    button {
+        width: 100%;
+        height: 40px;
+        border-radius: 40px;
+        background-color: #e7549c;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #b8075c;
+        color: #fff;
+    }
+</style>
 
 {% endblock %}

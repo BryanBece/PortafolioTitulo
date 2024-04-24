@@ -23,6 +23,8 @@ urlpatterns = [
     path('reserva/', reserva, name='reserva'),
     #RegistroFono
     path('registroFono/', registroFono, name='registroFono'),
+    #RegistroPaciente - Tutor
+    path('registroPaciente/', registroPacienteTutor, name='registroPaciente'),
     
     
     #Reset Password

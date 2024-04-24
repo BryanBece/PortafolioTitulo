@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro Fonoaudiologo{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Registro De Paciente</div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <h4>Datos Paciente</h4>
+                        <div class="form-group">
+                            {{ formPac.nombre | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.apellido | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.rut | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.genero | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.telefono | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.fechaNacimiento | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.direccion | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formPac.comuna | as_crispy_field }}
+                        </div>
+                        <hr>
+                        <h4>Datos Tutor</h4>
+                        <div class="form-group">
+                            {{ formTut.nombre | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formTut.apellido | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formTut.rut | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formTut.genero | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formTut.telefono | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ formTut.email | as_crispy_field }}
+                        </div>
+                        <button type="submit">Registrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    button {
+        width: 100%;
+        height: 40px;
+        border-radius: 40px;
+        background-color: #e7549c;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #b8075c;
+        color: #fff;
+    }
+</style>
+{% endblock %}
