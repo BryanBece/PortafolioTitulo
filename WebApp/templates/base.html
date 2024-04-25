@@ -21,6 +21,29 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7/dist/sweetalert2.all.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7/dist/sweetalert2.min.css" rel="stylesheet" />
+  <!-- CSS de Bootstrap -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+    rel="stylesheet">
+
+  <!-- jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <!-- JavaScript de Bootstrap -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js">
+  </script>
+
+
+  <script>
+    $(document).ready(function () {
+      $('.datepicker').datepicker({
+        format: 'dd/mm/yyyy',
+        autoclose: true,
+        todayHighlight: true,
+      });
+    });
+  </script>
+
+
 
 </head>
 
@@ -46,7 +69,8 @@
           </li>
           {% if user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'registroFono' %}"><i class="fas fa-user-plus"></i> Registro Fonoaudiologos</a>
+            <a class="nav-link" href="{% url 'registroFono' %}"><i class="fas fa-user-plus"></i> Registro
+              Fonoaudiologos</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-chart-bar"></i> Reportes</a>
@@ -54,7 +78,8 @@
           {% endif %}
           {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'registroPaciente' %}"><i class="fas fa-user-plus"></i> Registro Pacientes</a>
+            <a class="nav-link" href="{% url 'registroPaciente' %}"><i class="fas fa-user-plus"></i> Registro
+              Pacientes</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'reserva' %}"><i class="fas fa-file-medical"></i> Ficha Clínica</a>
@@ -85,7 +110,8 @@
       </div>
       <!-- Botón "Reservar hora" en el lado derecho -->
       <div class="d-flex">
-        <a class="btn btn-primary btn-reservar-hora" href="{% url 'reserva' %}" role="button"><i class="fas fa-calendar-plus"></i> Reservar hora</a>
+        <a class="btn btn-primary btn-reservar-hora" href="{% url 'reserva' %}" role="button"><i
+            class="fas fa-calendar-plus"></i> Reservar hora</a>
       </div>
     </div>
   </nav>

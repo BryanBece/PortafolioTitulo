@@ -39,8 +39,8 @@ class RegistroPacienteForm(forms.ModelForm):
             'nombre': 'Nombre',
             'apellido': 'Apellido',
             'rut': 'Rut',
-            'genero': 'Genero',
-            'telefono': 'Telefono',
+            'genero': 'Género',
+            'telefono': 'Teléfono',
             'fechaNacimiento': 'Fecha de Nacimiento',
         }
         widgets = {
@@ -50,7 +50,7 @@ class RegistroPacienteForm(forms.ModelForm):
             'genero': forms.Select(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'fechaNacimiento': forms.DateInput(attrs={'class': 'form-control'}),
+            'fechaNacimiento': forms.DateInput(attrs={'class': 'form-control datepicker'}),
         }
         
 #Formulario de Registro Tutor
