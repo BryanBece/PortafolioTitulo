@@ -154,6 +154,7 @@ def obtener_comunas(request):
     return JsonResponse(list(comunas), safe=False)
 
 #Registro Paciente-Tutor
+@login_required
 def registroPacienteTutor(request):
     data ={
         "regiones" : Region.objects.all(),
