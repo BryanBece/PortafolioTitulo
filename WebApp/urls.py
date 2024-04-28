@@ -23,6 +23,8 @@ urlpatterns = [
     path('reserva/', reserva, name='reserva'),
     #RegistroFono
     path('registroFono/', registroFono, name='registroFono'),
+    #Comunas
+    path('obtener_comunas/', obtener_comunas, name='obtener_comunas'),
     #RegistroPaciente - Tutor
     path('registroPaciente/', registroPacienteTutor, name='registroPaciente'),
     
@@ -30,5 +32,8 @@ urlpatterns = [
     #Reset Password
     path('resetearContrasena/', resetearContrasena, name='resetearContrasena'),
     path('restablecerContrasena/<int:id>/<str:token>/', restablecerContrasena, name='restablecerContrasena'),
+    
+    
+    
 
 ]

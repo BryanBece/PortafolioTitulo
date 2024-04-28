@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -109,8 +110,6 @@ def resetearContrasena(request):
 
     return render(request, 'registration/resetearContrasena.html')
 
-   
-
 #Registro Fonoaudiologos
 def registroFono(request):
     data = {
@@ -148,9 +147,16 @@ def registroFono(request):
     return render(request, 'registration/registroFono.html', data)
 
 
+#Comunas
+def obtener_comunas(request):
+    region_id = request.GET.get('region_id')
+    comunas = Comuna.objects.filter(region_id=region_id).values('id', 'comuna')
+    return JsonResponse(list(comunas), safe=False)
+
 #Registro Paciente-Tutor
 def registroPacienteTutor(request):
     data ={
+        "regiones" : Region.objects.all(),
         'formPac': RegistroPacienteForm(),
         'formTut': RegistroTutorForm()
     }
@@ -170,7 +176,6 @@ def registroPacienteTutor(request):
                 formularioTutor.save()
                 
                 tut = Tutor.objects.get(email=correoTutor)
-                print(tut)
                 pac = Paciente()
                 pac.nombre = formularioPaciente.cleaned_data.get('nombre')
                 pac.apellido = formularioPaciente.cleaned_data.get('apellido')
@@ -182,9 +187,6 @@ def registroPacienteTutor(request):
                 pac.comuna = formularioPaciente.cleaned_data.get('comuna')
                 pac.tutor = tut
                 pac.save()
-                
-               
-                                    
                 
                 # Crear un nuevo usuario
                 usuTut = User()
@@ -203,3 +205,4 @@ def registroPacienteTutor(request):
             data["formPac"] = formularioPaciente
             data["formTut"] = formularioTutor
     return render(request, 'registration/registroPacienteTutor.html', data)
+

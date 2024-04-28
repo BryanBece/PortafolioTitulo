@@ -4,6 +4,40 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+
+<script>
+    // Función para obtener las comunas de una región
+    $(document).ready(function () {
+        $('#id_region').change(function () {
+            var region_id = $(this).val();
+            $.ajax({
+                url: '/obtener_comunas/',
+                data: {
+                    'region_id': region_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $('#id_comuna').empty();
+                    $.each(data, function (index, comuna) {
+                        $('#id_comuna').append($('<option>', {
+                            value: comuna.id,
+                            text: comuna.comuna
+                        }));
+                    });
+                }
+            });
+        });
+    });
+    // Función para mostrar el datepicker
+    $(document).ready(function(){
+        $('.datepicker').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+        });
+    });
+</script>
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -34,7 +68,22 @@
                         <div class="form-group">
                             {{ formPac.direccion | as_crispy_field }}
                         </div>
-                        <!-- Falta Comuna -->
+                        <div class="form-group">
+                            <label for="id_region">Región*</label>
+                            <select class="form-control" name="region" id="id_region">
+                                <option value="">Seleccione una región</option>
+                                {% for region in regiones %}
+                                <option value="{{ region.id }}">{{ region.region }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <label for="id_comuna">Comuna*</label>
+                            <select class="form-control" name="comuna" id="id_comuna">
+                                <option value="">Seleccione una comuna</option>
+                            </select>
+                        </div>
                         <hr>
                         <h4>Datos Tutor</h4>
                         <div class="form-group">
@@ -83,4 +132,6 @@
         color: #fff;
     }
 </style>
+
+</script>
 {% endblock %}
