@@ -89,12 +89,44 @@ class ReservaHora(models.Model):
     fecha = models.DateField(default=timezone.now)
     hora = models.TimeField()
     fonoaudiologo = models.ForeignKey(Fonoaudiologo, on_delete=models.CASCADE)
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
-    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=10)
+    nombrePaciente = models.CharField(max_length=100)
+    apellidoPaciente = models.CharField(max_length=100)
+    rutPaciente = models.CharField(max_length=12)
+    telefonoPaciente = models.CharField(max_length=9)
+    emailPaciente = models.EmailField(max_length=100)
+    estado = models.CharField(max_length=10, default='Reservada')
     
     def __str__(self):
-        return f'{self.fonoaudiologo} - {self.paciente} - {self.fecha} - {self.hora}'
+        return f'{self.nombrePaciente} - {self.apellidoPaciente} -{self.fonoaudiologo} - {self.fecha} - {self.hora}'
+    
+#Horario Fonoaudiologos
+class HorasTrabajo(models.Model):
+    LUNES = 0
+    MARTES = 1
+    MIERCOLES = 2
+    JUEVES = 3
+    VIERNES = 4
+    SABADO = 5
+    DOMINGO = 6
+
+    DIA_CHOICES = [
+        (LUNES, 'Lunes'),
+        (MARTES, 'Martes'),
+        (MIERCOLES, 'Miércoles'),
+        (JUEVES, 'Jueves'),
+        (VIERNES, 'Viernes'),
+        (SABADO, 'Sábado'),
+        (DOMINGO, 'Domingo'),
+    ]
+
+    doctor = models.ForeignKey(Fonoaudiologo, related_name='horas_trabajo', on_delete=models.CASCADE)
+    dia_semana = models.IntegerField(choices=DIA_CHOICES, default=LUNES)
+    hora_inicio = models.DateTimeField()
+    hora_fin = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.get_dia_semana_display()}: {self.hora_inicio} - {self.hora_fin}"
+
     
 #Sesion Terapeutica
 class SesionTerapeutica(models.Model):

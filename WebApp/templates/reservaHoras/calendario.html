@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Reserva De Hora{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<!-- Incluir el idioma español para DatePicker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/i18n/jquery-ui-i18n.min.js"></script>
+<style>
+    #calendario {
+        width: 300px;
+        margin: 50px auto;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#calendario').datepicker({
+            minDate: 0, // No permitir seleccionar fechas anteriores a hoy
+            dateFormat: 'dd-mm-yy' // Formato de fecha (Año-Mes-Día)
+        });
+    });
+</script>
+
+<div class="container">
+    <form action="{% url 'ver_horas_disponibles' %}" method="GET">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <h3 class="text-center mb-3">Selecciona La Fecha De La Cita</h3>
+                <input type="text" id="calendario" name="fecha_reserva" class="form-control text-center" autocomplete="off" placeholder="Seleccione una fecha">
+            </div>
+        </div>
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <h3 class="text-center mb-3">Selecciona Un Doctor</h3>
+                <select id="id_doctor" class="form-select" name="doctor_id">
+                    <option value="">Selecciona un doctor</option>
+                    {% for doctor in doctores %}
+                    <option value="{{ doctor.id }}">{{ doctor.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <button type="submit">Ver horas disponibles</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+<style>
+    button {
+        width: 50%;
+        height: 40px;
+        border-radius: 40px;
+        background-color: #e7549c;
+        border: none;
+        margin-bottom: 20px;
+        outline: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #b8075c;
+        color: #fff;
+    }
+</style>
+
+{% endblock %}

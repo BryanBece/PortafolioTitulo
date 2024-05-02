@@ -11,6 +11,8 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from datetime import datetime, timedelta, time
+
 
 # Create your views here.
 
@@ -62,9 +64,117 @@ def nosotros(request):
 def oirs(request):
     return render(request, 'oirs.html')
 
-#Vista Reserva
-def reserva(request):
-    return render(request, 'reserva.html')
+# ------------------- Reserva de horas -------------------
+
+#Calendario
+def calendario(request):
+    context = {
+        'doctores': Fonoaudiologo.objects.all(),
+    }
+    return render(request, 'reservaHoras/calendario.html', context)
+
+#Horas Disponibles
+def ver_horas_disponibles(request):
+    fecha_reserva_str = request.GET.get('fecha_reserva')
+    doctor_id = request.GET.get('doctor_id')
+
+    if fecha_reserva_str and doctor_id:
+        # Convertir fecha_reserva de str a datetime
+        fecha_reserva = datetime.strptime(fecha_reserva_str, '%d-%m-%Y')
+        fecha_reserva_str_dd_mm_yyyy = fecha_reserva.strftime('%d/%m/%Y')
+        
+
+        # Obtener el doctor y las horas disponibles para esa fecha
+        doctor = Fonoaudiologo.objects.get(pk=doctor_id)
+        horas_disponibles = obtener_horas_disponibles_para_doctor(doctor, fecha_reserva)
+        context = {
+            'fecha_reserva': fecha_reserva_str,
+            'fecha_reserva_dt': fecha_reserva_str_dd_mm_yyyy,
+            'doctor': doctor,
+            'horas_disponibles': horas_disponibles
+        }
+        return render(request, 'reservaHoras/horasDisponibles.html', context)
+    else:
+        # Si no se proporcionaron la fecha de reserva o el ID del doctor, redirigir a una página de error
+        return render(request, 'reservaHoras/calendario.html')
+
+def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
+    # Obtener las horas de trabajo del doctor para el día de la reserva
+    dia_semana = fecha_reserva.weekday()
+    horas_trabajo = HorasTrabajo.objects.filter(doctor=doctor, dia_semana=dia_semana)
+
+    if horas_trabajo.exists():
+        hora_inicio = horas_trabajo.first().hora_inicio
+        hora_fin = horas_trabajo.first().hora_fin
+    else:
+        # Si el doctor no tiene horas de trabajo para el día de la reserva, retornar una lista vacía
+        return []
+
+    # Convertir hora_inicio y hora_fin a objetos datetime con la misma fecha que fecha_reserva
+    fecha_inicio = datetime.combine(fecha_reserva, time())
+    hora_inicio_dt = fecha_inicio.replace(hour=hora_inicio.hour, minute=hora_inicio.minute)
+    hora_fin_dt = fecha_inicio.replace(hour=hora_fin.hour, minute=hora_fin.minute)
+
+    # Crear una lista de todas las horas entre la hora de inicio y la hora de fin
+    todas_las_horas = []
+    hora_actual = hora_inicio_dt
+    while hora_actual < hora_fin_dt:
+        todas_las_horas.append(hora_actual)
+        hora_actual += timedelta(hours=1)
+
+    # Filtrar las horas disponibles eliminando las horas en las que ya hay citas reservadas para esa fecha
+    citas = ReservaHora.objects.filter(fonoaudiologo=doctor, fecha=fecha_reserva)
+    horas_reservadas = [cita.hora for cita in citas]
+    horas_disponibles = [hora.strftime('%H:%M') for hora in todas_las_horas if hora not in horas_reservadas]
+
+    return horas_disponibles
+
+#Formulario de Reserva
+def reservaHora(request):
+    fecha_reserva = request.GET.get('fecha_reserva')
+    print("Fecha" + str(fecha_reserva))
+    doctor_id = request.GET.get('doctor_id')
+    print(doctor_id)
+    hora = request.GET.get('hora')
+    print(hora)
+    doctor = Fonoaudiologo.objects.get(pk=doctor_id)
+    data = {
+        'form': ReservaHoraForm(),
+        'fecha_reserva': fecha_reserva,
+        'hora': hora,
+        'doctor': doctor
+    }
+    
+    if request.method == 'POST':
+        formulario = ReservaHoraForm(request.POST)
+        if formulario.is_valid():
+            nombre = formulario.cleaned_data.get('nombrePaciente')
+            apellido = formulario.cleaned_data.get('apellidoPaciente')
+            rut = formulario.cleaned_data.get('rutPaciente')
+            telefono = formulario.cleaned_data.get('telefonoPaciente')
+            email = formulario.cleaned_data.get('emailPaciente')
+            
+            res = ReservaHora()
+            res.fecha = datetime.strptime(fecha_reserva, '%d-%m-%Y')
+            res.hora = hora
+            res.fonoaudiologo = doctor
+            res.nombrePaciente = nombre
+            res.apellidoPaciente = apellido
+            res.rutPaciente = rut
+            res.telefonoPaciente = telefono
+            res.emailPaciente = email
+            res.save()
+
+            messages.success(request, 'Reserva realizada con éxito')
+            return redirect('home')
+        else:
+            messages.error(request, 'Error al realizar la reserva')
+            data["form"] = formulario
+    
+    return render(request, 'reservaHoras/reservaHora.html', data)
+
+
+# ------------------- Reserva de horas -------------------
 
 #Restablecer Contrseña
 def restablecerContrasena(request, id, token):

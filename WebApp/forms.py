@@ -75,3 +75,23 @@ class RegistroTutorForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+        
+#Formulario de Registro de Reserva
+class ReservaHoraForm(forms.ModelForm):
+    class Meta:
+        model = ReservaHora
+        fields = '__all__'
+        exclude = ['id', 'fecha', 'hora', 'fonoaudiologo', 'estado']
+        labels = {
+            'nombrePaciente': 'Nombre Paciente',
+            'apellidoPaciente': 'Apellido Paciente',
+            'rutPaciente': 'Rut',
+            'telefonoPaciente': 'Teléfono',
+            'emailPaciente': 'Email',
+        }
+
+    def __init__(self, *args, **kwargs):
+        horarios_disponibles = kwargs.pop('horarios_disponibles', None)
+        super(ReservaHoraForm, self).__init__(*args, **kwargs)
+        if horarios_disponibles:
+            self.fields['hora'].choices = [(horario.id, horario.hora.strftime('%H:%M')) for horario in horarios_disponibles]

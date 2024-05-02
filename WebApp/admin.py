@@ -38,9 +38,14 @@ class TutorAdmin(admin.ModelAdmin):
     list_display = ['id','nombre', 'apellido', 'rut', 'genero', 'telefono', 'email']
     search_fields = ['nombre', 'apellido', 'rut', 'genero', 'telefono', 'email']
     
+@admin.register(HorasTrabajo)
+class HorasTrabajoAdmin(admin.ModelAdmin):
+    list_display = ['doctor','dia_semana', 'hora_inicio', 'hora_fin']
+    search_fields = ['dia_semana', 'fonoaudiologo']
+    
 @admin.register(ReservaHora)
 class ReservaHoraAdmin(admin.ModelAdmin):
-    list_display = ['id','fecha', 'hora', 'fonoaudiologo', 'paciente', 'tutor', 'estado']
+    list_display = ['id','fecha', 'hora', 'fonoaudiologo', 'nombrePaciente', 'apellidoPaciente', 'rutPaciente','telefonoPaciente','emailPaciente','estado']
     search_fields = ['fecha', 'fonoaudiologo', 'paciente','estado']
     
 @admin.register(SesionTerapeutica)

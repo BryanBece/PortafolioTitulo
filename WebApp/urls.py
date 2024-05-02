@@ -1,6 +1,7 @@
 from django.urls import path, include
 from .views import *
 from django.contrib.auth import views as auth_views
+from . import views
 
 
 
@@ -19,8 +20,14 @@ urlpatterns = [
     path('nosotros/', nosotros, name='nosotros'),
     #OIRS
     path('oirs/', oirs, name='oirs'),
+    
+    
     #Reserva
-    path('reserva/', reserva, name='reserva'),
+    path('calendario/', calendario, name='calendario'),
+    path('ver-horas-disponibles/', ver_horas_disponibles, name='ver_horas_disponibles'),
+    path('reservar-hora/', reservaHora, name='reservar_hora'),
+    
+    
     #RegistroFono
     path('registroFono/', registroFono, name='registroFono'),
     #Comunas

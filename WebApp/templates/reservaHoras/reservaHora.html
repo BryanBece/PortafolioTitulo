@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Horas Disponibles{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow p-4 mb-4">
+                    <h3>Reserva de hora:</h3>
+                    <p>Fonoaudiologo/a: {{ doctor.nombre }} {{ doctor.apellido }}</p>
+                    <p>Fecha: {{ fecha_reserva }}</p>
+                    <p>Hora : {{ hora }}</p>
+                <hr>
+                <h3>Ingrese los datos del paciente: </h3>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.nombrePaciente | as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.apellidoPaciente | as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.rutPaciente | as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.telefonoPaciente | as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.emailPaciente | as_crispy_field }}
+                    </div>
+
+                    <input type="hidden" name="fecha_reserva" value="{{ fecha_reserva }}">
+                    <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+                    <input type="hidden" name="hora" value="{{ hora }}">
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Reservar</button>
+                    </div>
+                    <div class="text-center" style="margin-top: 5px;">
+                        <a href="{% url 'calendario' %}" class="btn btn-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
