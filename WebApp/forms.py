@@ -95,3 +95,9 @@ class ReservaHoraForm(forms.ModelForm):
         super(ReservaHoraForm, self).__init__(*args, **kwargs)
         if horarios_disponibles:
             self.fields['hora'].choices = [(horario.id, horario.hora.strftime('%H:%M')) for horario in horarios_disponibles]
+
+class PreguntasForm(forms.ModelForm):
+    class Meta:
+        model = PreguntaFormulario
+        fields = '__all__'
+        exclude = ['id']

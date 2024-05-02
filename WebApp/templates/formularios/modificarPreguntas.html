@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}Editar Pregunta{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow p-4 mb-4">
+                <h3>Editar Pregunta</h3>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.formulario | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.textoPregunta | as_crispy_field }}
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <button type="submit" class="btn btn-primary btn-modificar"><i class="fas fa-save"></i> Guardar cambios </button>
+                            <a href="{% url 'preguntas' %}" class="btn btn-primary btn-volver">Volver</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-volver {
+        width: 25%;
+        margin-left: 3%;
+        font-size: 15px;
+        background-color: #d5d0d2;
+        /* Color de fondo gris*/
+        border-color: #d5d0d2;
+        /* Color del borde gris */
+        text-transform: uppercase;
+        /* Convertir texto en mayúsculas*/
+        letter-spacing: 1px;
+        /*Espaciado entre letras */
+    }
+
+    .btn-volver:hover {
+        background-color: #c0bebf;
+        /*Gris más oscuro*/
+        border-color: #c0bebf;
+        /*Gris más oscuro*/
+    }
+
+    .btn-modificar {
+        width: 25%;
+        font-size: 15px;
+        background-color: #f26baa;
+        /*Color de fondo rosa*/
+        border-color: #f26baa;
+        /*Color del borde rosa*/
+        text-transform: uppercase;
+        /*Convertir texto en mayúsculas*/
+        letter-spacing: 1px;
+        /*Espaciado entre letras */
+    }
+
+    .btn-modificar:hover {
+        background-color: #e7549c;
+        /* Rosado más oscuro*/
+        border-color: #e7549c;
+        /*Borde en rosado más oscuro*/
+    }
+</style>
+
+
+
+{% endblock %}

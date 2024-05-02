@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Preguntas Formularios{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow p-4 mb-4">
+                    <h3>Preguntas Formularios</h3>
+                <hr>
+                {% if preguntas %}
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID Pregunta</th>
+                            <th>ID Formulario</th>
+                            <th>Pregunta</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in preguntas %}
+                            <tr> 
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.formulario.id }}</td>
+                                <td>{{ item.textoPregunta }}</td>
+                                <td>
+                                    <a href="{% url 'modificarPreguntas' item.id %}">Editar</a>
+                                    <a href="#" onclick="eliminarPreguntas({{ item.id }})">Eliminar</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No hay preguntas ingresadas</p>    
+                {% endif %}
+                <div class="button-container row justify-content-center" style="margin-top: 3%;">
+                    <a href="{% url 'crearPreguntas' %}" class="btn btn-primary btn-crearpreguntas">Crear Pregunta</a>
+                    <a href="{% url 'perfil' %}" class="btn btn-primary btn-volver">Volver</a>
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function eliminarPreguntas(idPregunta) {
+      Swal.fire({
+        title: "¿Estás seguro que desear eliminar esta pregunta?",
+        text: "No podrás revertir esto",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e7549c",
+        cancelButtonColor: "#c0bebf",
+        confirmButtonText: "Sí, eliminar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirige a la URL de eliminación
+          window.location.href = "{% url 'eliminarPreguntas' 0 %}".replace(
+            "0",
+            idPregunta
+          );
+        }
+      });
+    }
+  </script>
+
+<style> 
+.btn-volver {
+            width: 25%;
+            margin-left: 3%;
+            font-size: 15px;
+            background-color: #d5d0d2;
+            /* Color de fondo gris*/
+            border-color: #d5d0d2;
+            /* Color del borde gris */
+            text-transform: uppercase;
+            /* Convertir texto en mayúsculas*/
+            letter-spacing: 1px;
+            /*Espaciado entre letras */
+        }
+.btn-volver:hover {
+            background-color: #c0bebf;
+            /*Gris más oscuro*/
+            border-color: #c0bebf;
+            /*Gris más oscuro*/
+        }
+
+.btn-crearpreguntas {
+            width: 25%;
+            font-size: 15px;
+            background-color: #f26baa;
+            /*Color de fondo rosa*/
+            border-color: #f26baa;
+            /*Color del borde rosa*/
+            text-transform: uppercase;
+            /*Convertir texto en mayúsculas*/
+            letter-spacing: 1px;
+            /*Espaciado entre letras */
+        }
+
+.btn-crearpreguntas:hover {
+            background-color: #e7549c;
+            /* Rosado más oscuro*/
+            border-color: #e7549c;
+            /*Borde en rosado más oscuro*/
+        }
+</style>
+
+
+
+{% endblock %}
