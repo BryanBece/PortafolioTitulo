@@ -317,3 +317,54 @@ def registroPacienteTutor(request):
             data["formTut"] = formularioTutor
     return render(request, 'registration/registroPacienteTutor.html', data)
 
+# ------------------- Formularios Evaluación -------------------
+
+#Vista Preguntas
+@login_required
+def preguntas(request):
+    Preguntas = PreguntaFormulario.objects.all()
+    data = {
+        "preguntas": Preguntas,
+    }
+    return render(request, 'formularios/preguntas.html', data)
+
+#Crear preguntas
+@login_required
+def crearPreguntas(request):
+    data = {"form": PreguntasForm()}
+
+    if request.method == "POST":
+        formulario = PreguntasForm(data=request.POST)
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(request, "Pregunta Creada Correctamente")
+            return redirect(to="preguntas")
+        else:
+            data["form"] = formulario
+    return render(request, 'formularios/crearPreguntas.html', data)
+
+#Modificar preguntas
+login_required
+def modificarPreguntas(request,id):
+    Preguntas = PreguntaFormulario.objects.get(id=id)
+    data = {"form": PreguntasForm(instance=Preguntas)}
+
+    if request.method == "POST":
+        formulario = PreguntasForm(
+            data=request.POST, instance=Preguntas)
+        
+        if formulario.is_valid():
+            formulario.save()
+            messages.success(request, "Modificado Correctamente")
+            return redirect(to="preguntas")
+        data["form"] = formulario
+    return render(request, 'formularios/modificarPreguntas.html', data)
+
+#Eliminar preguntas
+@login_required
+def eliminarPreguntas(request, id):
+    Preguntas = PreguntaFormulario.objects.get(id=id)
+    Preguntas.delete()
+    messages.success(request, "Eliminado Correctamente")
+    return redirect(to="preguntas")
+
