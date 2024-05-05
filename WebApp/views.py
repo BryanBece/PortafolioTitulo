@@ -133,13 +133,9 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
 #Formulario de Reserva
 def reservaHora(request):
     fecha_reserva = request.GET.get('fecha')
-    print("Fecha" + str(fecha_reserva))
     doctor_id = request.GET.get('fonoaudiologo')
-    print(doctor_id)
     hora = request.GET.get('hora')
-    print(hora)
     doctor = Fonoaudiologo.objects.get(pk=doctor_id)
-    print(doctor)
     data = {
         'form': ReservaHoraForm(),
         'fecha_reserva': fecha_reserva,
@@ -166,6 +162,14 @@ def reservaHora(request):
             res.telefonoPaciente = telefono
             res.emailPaciente = email
             res.save()
+            
+            try:
+                subject = 'Confirmación Reserva De Hora - COFAM'
+                html_message = render_to_string('reservaHoras/confirmacionCorreo.html', {'fecha': fecha_reserva, 'hora': hora, 'fonoaudiologo': doctor, 'nombre': nombre, 'apellido': apellido, 'rut': rut})
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
+                
+            except Exception as e:
+                messages.error(request, 'Error al enviar el correo')
 
             messages.success(request, 'Reserva realizada con éxito')
             return redirect('home')
