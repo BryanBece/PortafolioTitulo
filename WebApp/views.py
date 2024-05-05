@@ -119,15 +119,16 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
     todas_las_horas = []
     hora_actual = hora_inicio_dt
     while hora_actual < hora_fin_dt:
-        todas_las_horas.append(hora_actual)
+        todas_las_horas.append(hora_actual.strftime('%H:%M'))
         hora_actual += timedelta(hours=1)
 
     # Filtrar las horas disponibles eliminando las horas en las que ya hay citas reservadas para esa fecha
     citas = ReservaHora.objects.filter(fonoaudiologo=doctor, fecha=fecha_reserva)
-    horas_reservadas = [cita.hora for cita in citas]
-    horas_disponibles = [hora.strftime('%H:%M') for hora in todas_las_horas if hora not in horas_reservadas]
+    horas_reservadas = [cita.hora.strftime('%H:%M') for cita in citas]
+    horas_disponibles = [hora for hora in todas_las_horas if hora not in horas_reservadas]
 
     return horas_disponibles
+
 
 #Formulario de Reserva
 def reservaHora(request):
