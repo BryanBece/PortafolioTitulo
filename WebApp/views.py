@@ -131,13 +131,14 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
 
 #Formulario de Reserva
 def reservaHora(request):
-    fecha_reserva = request.GET.get('fecha_reserva')
+    fecha_reserva = request.GET.get('fecha')
     print("Fecha" + str(fecha_reserva))
-    doctor_id = request.GET.get('doctor_id')
+    doctor_id = request.GET.get('fonoaudiologo')
     print(doctor_id)
     hora = request.GET.get('hora')
     print(hora)
     doctor = Fonoaudiologo.objects.get(pk=doctor_id)
+    print(doctor)
     data = {
         'form': ReservaHoraForm(),
         'fecha_reserva': fecha_reserva,
