@@ -189,8 +189,25 @@ def reservaHora(request):
 #Cancelar Reserva
 def cancelarReserva(request, id):
     reserva = ReservaHora.objects.get(id=id)
-    reserva.delete()
-    messages.success(request, 'Reserva cancelada con éxito')
+    fecha_reserva = reserva.fecha.strftime('%d-%m-%Y')
+    hora = reserva.hora
+    doctor = reserva.fonoaudiologo
+    nombre = reserva.nombrePaciente
+    apellido = reserva.apellidoPaciente
+    rut = reserva.rutPaciente
+    email = reserva.emailPaciente
+    
+    try:
+        subject = 'Cancelación Reserva De Hora - COFAM'
+        html_message = render_to_string('reservaHoras/cancelarCorreo.html', {'fecha': fecha_reserva, 'hora': hora, 'fonoaudiologo': doctor, 'nombre': nombre, 'apellido': apellido, 'rut': rut})
+        send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
+        reserva.delete()
+    
+        messages.success(request, 'Reserva cancelada con éxito')
+                
+    except Exception as e:
+        messages.error(request, 'Error al cancelar la hora')
+    
     return redirect('perfil')
 
 # ------------------- Reserva de horas -------------------
