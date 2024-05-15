@@ -28,7 +28,6 @@ def login(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
-        print(email, password)
 
         user = auth.authenticate(email=email, password=password)
 
@@ -50,7 +49,14 @@ def logout(request):
 #Vista Perfil
 @login_required
 def perfil(request):
-    return render(request, 'perfil.html')
+    if request.user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" or request.user.tipoUsuario.nombre_tipo_usuario == "Gerencia" or request.user.tipoUsuario.nombre_tipo_usuario == "Tutor":
+        # Obtener todas las reservas de hora para este fonoaudiólogo desde la fecha de hoy en adelante
+        reservas = ReservaHora.objects.filter(fecha__gte=datetime.now())
+        # Renderizar el template con las reservas de hora
+        return render(request, 'perfil.html', {'reservas': reservas})
+    else:
+        
+        return render(request, 'perfil.html')
 
 #Vista Equipo
 def equipo(request):
@@ -96,7 +102,8 @@ def ver_horas_disponibles(request):
         return render(request, 'reservaHoras/horasDisponibles.html', context)
     else:
         # Si no se proporcionaron la fecha de reserva o el ID del doctor, redirigir a una página de error
-        return render(request, 'reservaHoras/calendario.html')
+        messages.error(request, 'Debe seleccionar una fecha y un doctor para ver las horas disponibles')
+        return redirect('calendario')
 
 def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
     # Obtener las horas de trabajo del doctor para el día de la reserva
@@ -179,6 +186,12 @@ def reservaHora(request):
     
     return render(request, 'reservaHoras/reservaHora.html', data)
 
+#Cancelar Reserva
+def cancelarReserva(request, id):
+    reserva = ReservaHora.objects.get(id=id)
+    reserva.delete()
+    messages.success(request, 'Reserva cancelada con éxito')
+    return redirect('perfil')
 
 # ------------------- Reserva de horas -------------------
 

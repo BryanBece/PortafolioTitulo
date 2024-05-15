@@ -4,5 +4,131 @@
 
 {% block content %}
 
+<div class="container">
+    <h1>Bienvenido(a) {{ user.get_full_name }}</h1>
+    <hr>
+    <!-- PERFIL FONO -->
+    {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
+    <h2>Tus siguientes horas agendadas:</h2>
+    {% if reservas %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Teléfono Paciente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            {% if reserva.fonoaudiologo.email == user.email %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>{{ reserva.telefonoPaciente }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes horas reservadas.</p>
+    {% endif %}
+
+
+
+
+    <!-- PERFIL GERENCIA -->
+    {% elif user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
+    <h2>Siguientes horas agendadas:</h2>
+    {% if reservas %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Fonoaudiologo</th>
+                <th>Paciente</th>
+                <th>Teléfono Paciente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.fonoaudiologo }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>{{ reserva.telefonoPaciente }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes horas reservadas.</p>
+    {% endif %}
+
+
+
+    
+    <!-- PERFIL TUTOR -->
+    {% elif user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
+    <h2>Tus siguientes horas agendadas:</h2>
+    {% if reservas %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            {% if reserva.emailPaciente == user.email %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>
+                    <a href="#" onclick="cancelarReserva({{ reserva.id }})" class="btn btn-danger">Cancelar</a>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes horas reservadas.</p>
+    {% endif %}
+    {% else %}
+
+    {% endif %}
+</div>
+
+<script>
+    function cancelarReserva(idReserva) {
+      Swal.fire({
+        title: "¿Estás seguro que desear cancelar esta reserva?",
+        text: "No podrás revertir esto",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e7549c",
+        cancelButtonColor: "#c0bebf",
+        confirmButtonText: "Sí, cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirige a la URL de eliminación
+          window.location.href = "{% url 'cancelarReserva' 0 %}".replace(
+            "0",
+            idReserva
+          );
+        }
+      });
+    }
+  </script>
 
 {% endblock %}

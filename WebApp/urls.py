@@ -26,6 +26,7 @@ urlpatterns = [
     path('calendario/', calendario, name='calendario'),
     path('ver-horas-disponibles/', ver_horas_disponibles, name='ver_horas_disponibles'),
     path('reservar-hora/', reservaHora, name='reservar_hora'),
+    path('cancelarReserva/<int:id>', cancelarReserva, name='cancelarReserva'),
     
     
     #RegistroFono
