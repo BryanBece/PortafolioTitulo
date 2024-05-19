@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Búsqueda de paciente{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4" style="width: 100%; max-width: 500px;">
+        <h2 class="text-center mb-4">Buscar Paciente</h2>
+        <form method="GET" action="{% url 'buscar_paciente' %}" id="buscarPacienteForm">
+            <div class="mb-3">
+                {% if request.GET.rut %}
+                <label for="rut" class="form-label">Rut del paciente (Con guión)</label>
+                <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingresa el RUT del paciente" value="{{ rut }}" disabled>
+                {% else %}
+                <label for="rut" class="form-label">RUT del paciente (Con guión y sin puntos)</label>
+                <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingresa el RUT del paciente" required>
+                {% endif %}
+            </div>
+            <div class="d-grid">
+                <button type="submit">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    button {
+        width: 100%;
+        height: 40px;
+        background-color: #e7549c;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        color: #fff;
+    }
+
+    button:hover {
+        background-color: #b8075c;
+        color: #fff;
+    }
+</style>
+
+<script>
+    document.getElementById('buscarPacienteForm').onsubmit = function(event) {
+        event.preventDefault();
+        const rut = document.getElementById('rut').value;
+        
+        fetch(`{% url 'buscar_paciente' %}?rut=${rut}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    window.location.href = data.url;
+                } else {
+                    Swal.fire({
+                        title: 'Paciente no encontrado',
+                        text: "¿Deseas crear un nuevo paciente?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonText: 'Cancelar',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, crear paciente'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{% url 'registroPaciente' %}?rut=" + rut;
+                        }
+                    });
+                }
+            });
+    };
+</script>
+{% endblock %}

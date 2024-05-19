@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Sesión{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Detalle de la Sesión Fonoaudiológica</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Fecha:</strong> {{ sesion.fecha }}</p>
+            <p><strong>Fonoaudiologo:</strong> {{ sesion.fonoaudiologo }}</p>
+            <p><strong>Paciente:</strong> {{ sesion.paciente }}</p>
+            <p><strong>Tutor:</strong> {{ sesion.tutor }}</p>
+            <hr>
+            <p><strong>Actividades:</strong> {{ sesion.actividades }}</p>
+            <hr>
+            <p><strong>Tareas:</strong> {{ sesion.tareas }}</p>
+            <a href="{% url 'fichaClinica' sesion.paciente.id %}" class="btn btn-secondary mt-3">Volver a la Ficha del Paciente</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

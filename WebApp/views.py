@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib import auth, messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from user.models import *
 from .forms import *
@@ -11,7 +11,8 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
+
 
 
 # Create your views here.
@@ -49,13 +50,17 @@ def logout(request):
 #Vista Perfil
 @login_required
 def perfil(request):
-    if request.user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" or request.user.tipoUsuario.nombre_tipo_usuario == "Gerencia" or request.user.tipoUsuario.nombre_tipo_usuario == "Tutor":
-        # Obtener todas las reservas de hora para este fonoaudiólogo desde la fecha de hoy en adelante
-        reservas = ReservaHora.objects.filter(fecha__gte=datetime.now())
-        # Renderizar el template con las reservas de hora
-        return render(request, 'perfil.html', {'reservas': reservas})
-    else:
+    if request.user.tipoUsuario.nombre_tipo_usuario in ["Fonoaudiologo", "Gerencia", "Tutor"]:
+        tomorrow = date.today() + timedelta(days=1)
+        reservas_futuras = ReservaHora.objects.filter(fecha__gte=tomorrow).filter(estado='Reservada').order_by('-id')
         
+        data = {
+            'reservas_hoy': ReservaHora.objects.filter(fecha__gte=date.today()).filter(estado='Reservada').order_by('-id'),
+            'reservas_total': ReservaHora.objects.exclude(estado='Reservada').order_by('-id'),
+            'reservas_futuras': reservas_futuras,
+        }
+        return render(request, 'perfil.html', data)
+    else:
         return render(request, 'perfil.html')
 
 #Vista Equipo
@@ -85,12 +90,8 @@ def ver_horas_disponibles(request):
     doctor_id = request.GET.get('doctor_id')
 
     if fecha_reserva_str and doctor_id:
-        # Convertir fecha_reserva de str a datetime
         fecha_reserva = datetime.strptime(fecha_reserva_str, '%d-%m-%Y')
         fecha_reserva_str_dd_mm_yyyy = fecha_reserva.strftime('%d/%m/%Y')
-        
-
-        # Obtener el doctor y las horas disponibles para esa fecha
         doctor = Fonoaudiologo.objects.get(pk=doctor_id)
         horas_disponibles = obtener_horas_disponibles_para_doctor(doctor, fecha_reserva)
         context = {
@@ -101,12 +102,10 @@ def ver_horas_disponibles(request):
         }
         return render(request, 'reservaHoras/horasDisponibles.html', context)
     else:
-        # Si no se proporcionaron la fecha de reserva o el ID del doctor, redirigir a una página de error
         messages.error(request, 'Debe seleccionar una fecha y un doctor para ver las horas disponibles')
         return redirect('calendario')
 
 def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
-    # Obtener las horas de trabajo del doctor para el día de la reserva
     dia_semana = fecha_reserva.weekday()
     horas_trabajo = HorasTrabajo.objects.filter(doctor=doctor, dia_semana=dia_semana)
 
@@ -114,22 +113,17 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
         hora_inicio = horas_trabajo.first().hora_inicio
         hora_fin = horas_trabajo.first().hora_fin
     else:
-        # Si el doctor no tiene horas de trabajo para el día de la reserva, retornar una lista vacía
         return []
-
-    # Convertir hora_inicio y hora_fin a objetos datetime con la misma fecha que fecha_reserva
     fecha_inicio = datetime.combine(fecha_reserva, time())
     hora_inicio_dt = fecha_inicio.replace(hour=hora_inicio.hour, minute=hora_inicio.minute)
     hora_fin_dt = fecha_inicio.replace(hour=hora_fin.hour, minute=hora_fin.minute)
 
-    # Crear una lista de todas las horas entre la hora de inicio y la hora de fin
     todas_las_horas = []
     hora_actual = hora_inicio_dt
     while hora_actual < hora_fin_dt:
         todas_las_horas.append(hora_actual.strftime('%H:%M'))
         hora_actual += timedelta(hours=1)
 
-    # Filtrar las horas disponibles eliminando las horas en las que ya hay citas reservadas para esa fecha
     citas = ReservaHora.objects.filter(fonoaudiologo=doctor, fecha=fecha_reserva)
     horas_reservadas = [cita.hora.strftime('%H:%M') for cita in citas]
     horas_disponibles = [hora for hora in todas_las_horas if hora not in horas_reservadas]
@@ -187,6 +181,7 @@ def reservaHora(request):
     return render(request, 'reservaHoras/reservaHora.html', data)
 
 #Cancelar Reserva
+@login_required
 def cancelarReserva(request, id):
     reserva = ReservaHora.objects.get(id=id)
     fecha_reserva = reserva.fecha.strftime('%d-%m-%Y')
@@ -257,6 +252,7 @@ def resetearContrasena(request):
     return render(request, 'registration/resetearContrasena.html')
 
 #Registro Fonoaudiologos
+@login_required
 def registroFono(request):
     data = {
         'form': RegistroFonoForm()
@@ -305,7 +301,8 @@ def registroPacienteTutor(request):
     data ={
         "regiones" : Region.objects.all(),
         'formPac': RegistroPacienteForm(),
-        'formTut': RegistroTutorForm()
+        'formTut': RegistroTutorForm(),
+        'rut': request.GET.get('rut')
     }
     
     if request.method == 'POST':
@@ -346,7 +343,7 @@ def registroPacienteTutor(request):
                 usuTut.save()
                 
                 messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados')
-                return redirect('perfil')
+                return redirect('ficha_clinica', id=pac.id)
             
         else:
             data["formPac"] = formularioPaciente
@@ -404,3 +401,95 @@ def eliminarPreguntas(request, id):
     messages.success(request, "Eliminado Correctamente")
     return redirect(to="preguntas")
 
+# ------------------- Formularios Evaluación -------------------
+
+#Sesion Asistida
+@login_required
+def sesionAsistida(request, id):
+    reserva = ReservaHora.objects.get(id=id)
+    reserva.estado = 'Asistida'
+    reserva.save()
+    messages.success(request, "Guardada Correctamente")
+    return redirect(to="perfil")
+
+#Sesión No Asistida
+@login_required
+def sesionNoAsistida(request, id):
+    reserva = ReservaHora.objects.get(id=id)
+    reserva.estado = 'No Asistid'
+    reserva.save()
+    messages.success(request, "Guardada Correctamente")
+    return redirect(to="perfil")
+
+#Ficha Clinica
+@login_required
+def fichaClinica(request, id):
+    paciente = Paciente.objects.get(id=id)
+    sesionFono = SesionTerapeutica.objects.filter(paciente=paciente).order_by('-id')
+    data = {
+        'paciente': paciente,
+        'sesiones': sesionFono,
+    }
+    
+    return render(request, 'atencion/fichaClinica.html', data)
+
+#Buscar Paciente
+@login_required
+def busquedaPaciente(request):
+    rut = request.GET.get('rut')
+    return render(request, 'atencion/buscarPaciente.html', {'rut': rut})
+
+def buscar_paciente(request):
+    rut = request.GET.get('rut')
+    
+    if rut:
+        try:
+            paciente = Paciente.objects.get(rut=rut)
+            messages.success(request, 'Paciente encontrado')
+            url = reverse('fichaClinica', args=[paciente.id])
+            return JsonResponse({'found': True, 'url': url})
+        except Paciente.DoesNotExist:
+            return JsonResponse({'found': False})
+    
+    return JsonResponse({'found': False})
+
+#Sesión Fonoaudiologica
+@login_required
+def sesionFono(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+    fono = Fonoaudiologo.objects.get(email=request.user.email)
+    data = {
+        'form': SesionForm(),
+        'paciente': paciente
+    }
+    
+    if request.method == 'POST':
+        form = SesionForm(request.POST)
+        if form.is_valid():
+            sesion = form.save(commit=False)
+            sesion.fonoaudiologo = fono
+            sesion.paciente = paciente
+            sesion.tutor = paciente.tutor
+            sesion.fecha = timezone.now()
+            sesion.save()
+            
+            try:
+                subject = 'Detalle de Sesión Fonoaudiológica'
+                html_message = render_to_string('atencion/detalleSesionEmail.html', {'sesion': sesion})
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [paciente.tutor.email], html_message=html_message)
+    
+                messages.success(request, 'Sesión guardada correctamente, el correo ha sido enviado al tutor')
+                
+            except Exception as e:
+                messages.error(request, 'Error al guardar la sesión')
+            
+            return redirect('fichaClinica', id=paciente.id)  
+    else:
+        form = SesionForm(initial={'paciente': paciente, 'tutor': paciente.tutor})
+        
+    return render(request, 'atencion/sesion.html', data)
+
+@login_required
+def detalleSesion(request, id):
+    sesion = get_object_or_404(SesionTerapeutica, id=id)
+    return render(request, 'atencion/detalleSesion.html', {'sesion': sesion})

@@ -9,24 +9,61 @@
     <hr>
     <!-- PERFIL FONO -->
     {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
-    <h2>Tus siguientes horas agendadas:</h2>
-    {% if reservas %}
+    <h2>Tus horas agendadas para hoy:</h2>
+    {% if reservas_hoy %}
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Fecha</th>
                 <th>Hora</th>
                 <th>Paciente</th>
+                <th>Rut</th>
                 <th>Teléfono Paciente</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for reserva in reservas %}
-            {% if reserva.fonoaudiologo.email == user.email %}
+            {% for reserva in reservas_hoy %}
+            {% if reserva.fonoaudiologo.email == user.email and reserva.estado == 'Reservada' %}
             <tr>
                 <td>{{ reserva.fecha }}</td>
                 <td>{{ reserva.hora }}</td>
                 <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>{{ reserva.rutPaciente }}</td>
+                <td>{{ reserva.telefonoPaciente }}</td>
+                <td>
+                    <a href="#" onclick="confirmarAsistencia({{ reserva.id }})" class="btn btn-success">Asistida</a>
+                    <a href="#" onclick="confirmarInasistencia({{ reserva.id }})" class="btn btn-danger">No asistida</a>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes horas reservadas para hoy.</p>
+    {% endif %}
+
+    <h2>Tus siguientes horas agendadas:</h2>
+    {% if reservas_futuras %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Rut</th>
+                <th>Teléfono Paciente</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas_futuras %}
+            {% if reserva.fonoaudiologo.email == user.email and reserva.estado == 'Reservada' %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>{{ reserva.rutPaciente }}</td>
                 <td>{{ reserva.telefonoPaciente }}</td>
             </tr>
             {% endif %}
@@ -34,8 +71,44 @@
         </tbody>
     </table>
     {% else %}
-    <p>No tienes horas reservadas.</p>
+    <p>No tienes horas futuras.</p>
     {% endif %}
+    <h2>Tus horas agendadas:</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Teléfono Paciente</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas_total %}
+            {% if reserva.fonoaudiologo.email == user.email %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>{{ reserva.telefonoPaciente }}</td>
+                <td>
+                    {% if reserva.estado == 'Asistida' %}
+                    <button class="btn btn-success" disabled>Asistida</button>
+                    {% elif reserva.estado == 'No Asistid' %}
+                    <button class="btn btn-danger" disabled>No Asistida</button>
+                    {% endif %}
+                </td>
+                <td> <!-- Celda para el botón "Buscar Paciente" -->
+                    <a href="{% url 'busquedaPaciente' %}?rut={{ reserva.rutPaciente }}" class="btn btn-warning">Buscar Paciente</a>
+                </td>
+                
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 
@@ -123,6 +196,45 @@
         if (result.isConfirmed) {
           // Redirige a la URL de eliminación
           window.location.href = "{% url 'cancelarReserva' 0 %}".replace(
+            "0",
+            idReserva
+          );
+        }
+      });
+    }
+
+    function confirmarAsistencia(idReserva) {
+      Swal.fire({
+        title: "¿Estás seguro que desear confirmar la asistencia a esta reserva?",
+        text: "No podrás revertir esto",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e7549c",
+        cancelButtonColor: "#c0bebf",
+        confirmButtonText: "Sí, confirmar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirige a la URL de eliminación
+          window.location.href = "{% url 'confirmarAsistencia' 0 %}".replace(
+            "0",
+            idReserva
+          );
+        }
+      });
+    }
+    function confirmarInasistencia(idReserva) {
+      Swal.fire({
+        title: "¿Estás seguro que desear confirmar la inasistencia de este paciente?",
+        text: "No podrás revertir esto",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e7549c",
+        cancelButtonColor: "#c0bebf",
+        confirmButtonText: "Sí, confirmar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirige a la URL de eliminación
+          window.location.href = "{% url 'noAsistida' 0 %}".replace(
             "0",
             idReserva
           );

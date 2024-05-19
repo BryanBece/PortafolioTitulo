@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Ficha Clínica{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos Personales</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="card-title">Datos del Paciente</h4>
+                    <p class="card-text"><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+                    <p class="card-text"><strong>Apellido:</strong> {{ paciente.apellido }}</p>
+                    <p class="card-text"><strong>RUT:</strong> {{ paciente.rut }}</p>
+                    <p class="card-text"><strong>Fecha de Nacimiento:</strong> {{ paciente.fechaNacimiento }}</p>
+                    <p class="card-text"><strong>Género:</strong> {{ paciente.genero.genero }}</p>
+                    <p class="card-text"><strong>Teléfono:</strong> {{ paciente.telefono }}</p>
+                    <p class="card-text"><strong>Dirección:</strong> {{ paciente.direccion }}</p>
+                    <p class="card-text"><strong>Comuna:</strong> {{ paciente.comuna.comuna }}</p>
+                    <p class="card-text"><strong>Región:</strong> {{ paciente.comuna.region }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="card-title">Datos del Tutor</h4>
+                    <p class="card-text"><strong>Nombre:</strong> {{ paciente.tutor.nombre }}</p>
+                    <p class="card-text"><strong>Apellido:</strong> {{ paciente.tutor.apellido }}</p>
+                    <p class="card-text"><strong>RUT:</strong> {{ paciente.tutor.rut }}</p>
+                    <p class="card-text"><strong>Género:</strong> {{ paciente.tutor.genero.genero }}</p>
+                    <p class="card-text"><strong>Teléfono:</strong> {{ paciente.tutor.telefono }}</p>
+                    <p class="card-text"><strong>Email:</strong> {{ paciente.tutor.email }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Formularios</h2>
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-file-alt me-2"></i>Ingresar Formulario
+            </a>
+        </div>
+        <div class="card-body">
+
+        </div>
+    </div>
+    <div class="card mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Sesiones Fonoaudiológicas</h2>
+            <a href="{% url 'sesion' paciente.id %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nueva Sesión
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sesion in sesiones %}
+                    <tr>
+                        <td>{{ sesion.fecha }}</td>
+                        <td>
+                            <a href="{% url 'detalleSesion' sesion.id %}" class="btn btn-info">Ver Detalle</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

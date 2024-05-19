@@ -27,6 +27,8 @@ urlpatterns = [
     path('ver-horas-disponibles/', ver_horas_disponibles, name='ver_horas_disponibles'),
     path('reservar-hora/', reservaHora, name='reservar_hora'),
     path('cancelarReserva/<int:id>', cancelarReserva, name='cancelarReserva'),
+    path('confirmarAsistencia/<int:id>', sesionAsistida, name='confirmarAsistencia'),
+    path('noAsistida/<int:id>', sesionNoAsistida, name='noAsistida'),
     
     
     #RegistroFono
@@ -47,6 +49,13 @@ urlpatterns = [
     path('modificarPreguntas/<int:id>', modificarPreguntas, name='modificarPreguntas'),
     path('eliminarPreguntas/<int:id>', eliminarPreguntas, name='eliminarPreguntas'),
     
+    
+    #Atencion
+    path('busquedaPaciente/', busquedaPaciente, name='busquedaPaciente'),
+    path('buscar_paciente/', views.buscar_paciente, name='buscar_paciente'),
+    path('fichaClinica/<int:id>', fichaClinica, name='fichaClinica'),
+    path('sesion/<int:id>', sesionFono, name='sesion'),
+    path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),
     
     
 

@@ -66,12 +66,9 @@
           {% endif %}
           {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'registroPaciente' %}"><i class="fas fa-user-plus"></i> Registro
-              Pacientes</a>
+            <a class="nav-link" href="{% url 'busquedaPaciente' %}"><i class="fas fa-search"></i> Pacientes</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'calendario' %}"><i class="fas fa-file-medical"></i> Ficha Clínica</a>
-          </li>
+
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'calendario' %}"><i class="fas fa-calendar-plus"></i> Reservar hora</a>

@@ -53,9 +53,10 @@
                         <div class="form-group">
                             {{ formPac.apellido | as_crispy_field }}
                         </div>
-                        <div class="form-group">
-                            {{ formPac.rut | as_crispy_field }}
-                        </div>
+                        <div class="mb-3">
+                            <label for="rut" class="form-label">RUT</label>
+                            <input type="text" class="form-control" id="rut" name="rut" value="{{ rut }}" readonly>
+                        </div>                
                         <div class="form-group">
                             {{ formPac.genero | as_crispy_field }}
                         </div>

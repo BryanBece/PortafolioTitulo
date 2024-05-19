@@ -9,11 +9,10 @@ class RegistroFonoForm(forms.ModelForm):
     class Meta:
         model = Fonoaudiologo
         fields = '__all__'
-        exclude = ['id']
+        exclude = ['id', 'rut']
         labels = {
             'nombre': 'Nombre',
             'apellido': 'Apellido',
-            'rut': 'Rut',
             'genero': 'Genero',
             'telefono': 'Telefono',
             'email': 'Email',
@@ -101,3 +100,14 @@ class PreguntasForm(forms.ModelForm):
         model = PreguntaFormulario
         fields = '__all__'
         exclude = ['id']
+        
+        
+class SesionForm(forms.ModelForm):
+    class Meta:
+        model = SesionTerapeutica
+        fields = '__all__'
+        exclude = ['id', 'fecha', 'fonoaudiologo', 'paciente', 'tutor']
+        labels = {
+            'tareas': 'Tareas asignadas para el domicilio',
+            'actividades': 'Actividades realizadas en la sesión',
+        }

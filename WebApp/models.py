@@ -137,7 +137,6 @@ class SesionTerapeutica(models.Model):
     fonoaudiologo = models.ForeignKey(Fonoaudiologo, on_delete=models.CASCADE)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=10)
     
     def __str__(self):
         return f'{self.fonoaudiologo} - {self.paciente} - {self.fecha} - {self.hora}'
