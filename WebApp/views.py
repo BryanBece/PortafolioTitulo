@@ -306,8 +306,8 @@ def registroFono(request):
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [correo], html_message=html_message)
                 
                 
-                messages.success(request, f'Fonoaudiologo {nombre} creado y horario asignado. Se ha enviado un correo para configurar la contraseña.')
-                return redirect('perfil')
+                messages.success(request, f'Fonoaudiologo {nombre} creado. Se ha enviado un correo para configurar la contraseña.')
+                return redirect('listaFonos')
             
         else:
             data["form"] = formulario
@@ -470,8 +470,20 @@ def fichaClinica(request, id):
 #Buscar Paciente
 @login_required
 def busquedaPaciente(request):
-    rut = request.GET.get('rut')
-    return render(request, 'atencion/buscarPaciente.html', {'rut': rut})
+    rut = request.GET.get('rut', '')  # Default to empty string if 'rut' is not provided
+    pacientes = Paciente.objects.all()
+    
+    if rut:
+        pacientes = pacientes.filter(rut__icontains=rut)
+    
+    data = {
+        'rut': rut,
+        'pacientes': pacientes
+    }
+    
+    return render(request, 'atencion/buscarPaciente.html', data)
+
+
 
 def buscar_paciente(request):
     rut = request.GET.get('rut')
@@ -546,3 +558,63 @@ def nuevaContrasenia(request, id, token):
 
     return render(request, 'registration/nuevaContrasenia.html')
 
+
+#Editar Paciente
+@login_required
+def editarPacienteTutor(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+    tutor = paciente.tutor
+
+    if request.method == 'POST':
+        formPac = RegistroPacienteForm(request.POST, instance=paciente)
+        formTut = RegistroTutorForm(request.POST, instance=tutor)
+        if formPac.is_valid() and formTut.is_valid():
+            formPac.save()
+            formTut.save()
+            messages.success(request, 'Datos actualizados correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
+    else:
+        messages.error(request, 'Error al actualizar los datos.')
+        formPac = RegistroPacienteForm(instance=paciente)
+        formTut = RegistroTutorForm(instance=tutor)
+
+    return render(request, 'registration/editarPacienteTutor.html', {
+        'formPac': formPac,
+        'formTut': formTut,
+        'regiones': Region.objects.all(),
+        'paciente': paciente
+    })
+
+#Listar Fonos
+@login_required
+def listarFonos(request):
+    fonos = Fonoaudiologo.objects.all()
+    data = {
+        'fonos': fonos
+    }
+    return render(request, 'registration/fonoaudiologos.html', data)
+
+#Editar Fono
+@login_required
+def editarFono(request, id):
+    fono = get_object_or_404(Fonoaudiologo, id=id)
+    if request.method == "POST":
+        form = RegistroFonoForm(request.POST, instance=fono)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Fonoaudiologo actualizado correctamente.')
+            return redirect('listaFonos')
+    else:
+        form = RegistroFonoForm(instance=fono)
+    return render(request, 'registration/editarFono.html', {'form': form})
+
+#Eliminar Fono
+@login_required
+def eliminar_fono(request, id):
+    fono = Fonoaudiologo.objects.get(pk=id)
+    usuario = User.objects.get(email=fono.email)
+    usuario.delete()
+    fono.delete()
+    messages.success(request, 'Fonoaudiologo eliminado correctamente.')
+    return redirect('listaFonos')
+    

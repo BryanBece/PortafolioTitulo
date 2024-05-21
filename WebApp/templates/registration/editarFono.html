@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro Fonoaudiologo{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Editar Fonoaudiologo</div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.clinica | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.nombre | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.apellido | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.rut | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.genero | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.telefono | as_crispy_field }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">Email*</label>
+                            <input type="email" class="form-control" id="id_email" name="{{ form.email.name }}" value="{{ form.email.value }}" readonly>
+                        </div>
+                        <div class="d-grid gap-2 d-md-block">
+                            <button type="submit" class="btn btn-success btn-block"><i class="fas fa-save"></i> Guardar Cambios</button>
+                            <a href="{% url 'listaFonos' %}" class="btn btn-primary btn-block"><i class="fas fa-arrow-left"></i> Volver</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-block {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .btn-success {
+        background-color: #e7549c;
+        border: none;
+    }
+    .btn-success:hover {
+        background-color: #b8075c;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

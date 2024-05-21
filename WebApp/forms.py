@@ -1,7 +1,8 @@
 from django import forms
 from .models import *
-from django.contrib.admin.widgets import AdminDateWidget
-from django.forms.fields import DateField
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
 
 
 #Formulario de Registro Fonoaudiologo
@@ -111,3 +112,5 @@ class SesionForm(forms.ModelForm):
             'tareas': 'Tareas asignadas para el domicilio',
             'actividades': 'Actividades realizadas en la sesión',
         }
+
+

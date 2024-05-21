@@ -3,45 +3,56 @@
 {% block title %}Búsqueda de paciente{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4" style="width: 100%; max-width: 500px;">
-        <h2 class="text-center mb-4">Buscar Paciente</h2>
-        <form method="GET" action="{% url 'buscar_paciente' %}" id="buscarPacienteForm">
-            <div class="mb-3">
-                {% if request.GET.rut %}
-                <label for="rut" class="form-label">Rut del paciente (Con guión)</label>
-                <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingresa el RUT del paciente" value="{{ rut }}" disabled>
-                {% else %}
-                <label for="rut" class="form-label">RUT del paciente (Con guión y sin puntos)</label>
-                <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingresa el RUT del paciente" required>
-                {% endif %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Buscar Paciente</h2>
+    <form method="GET" action="{% url 'buscar_paciente' %}" id="buscarPacienteForm" class="mb-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingresa el RUT del paciente (con guión y sin puntos)" value="{{ rut|default_if_none:'' }}">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
             </div>
-            <div class="d-grid">
-                <button type="submit">Buscar</button>
-            </div>
-        </form>
+        </div>
+    </form>
+
+    {% if pacientes %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>RUT</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Género</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paciente in pacientes %}
+                <tr>
+                    <td>{{ paciente.nombre }}</td>
+                    <td>{{ paciente.apellido }}</td>
+                    <td>{{ paciente.rut }}</td>
+                    <td>{{ paciente.fechaNacimiento }}</td>
+                    <td>{{ paciente.genero.genero }}</td>
+                    <td>{{ paciente.telefono }}</td>
+                    <td>
+                        <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-info">Ficha Clínica</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        No se encontraron pacientes.
+    </div>
+    {% endif %}
 </div>
-
-<style>
-    button {
-        width: 100%;
-        height: 40px;
-        background-color: #e7549c;
-        border: none;
-        outline: none;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.4s ease;
-        color: #fff;
-    }
-
-    button:hover {
-        background-color: #b8075c;
-        color: #fff;
-    }
-</style>
 
 <script>
     document.getElementById('buscarPacienteForm').onsubmit = function(event) {

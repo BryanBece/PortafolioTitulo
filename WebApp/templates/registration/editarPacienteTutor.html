@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Registrar Paciente{% endblock %}
+{% block title %}Editar Paciente{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -42,7 +42,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">Registro De Paciente</div>
+                <div class="card-header">Editar Paciente</div>
                 <div class="card-body">
                     <form method="POST" action="">
                         {% csrf_token %}
@@ -54,8 +54,7 @@
                             {{ formPac.apellido | as_crispy_field }}
                         </div>
                         <div class="mb-3">
-                            <label for="rut" class="form-label">RUT</label>
-                            <input type="text" class="form-control" id="rut" name="rut" value="{{ rut }}" readonly>
+                            {{ formPac.rut | as_crispy_field }}
                         </div>                
                         <div class="form-group">
                             {{ formPac.genero | as_crispy_field }}
@@ -103,10 +102,10 @@
                             {{ formTut.telefono | as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            {{ formTut.email | as_crispy_field }}
+                            <label for="id_email">Email*</label>
+                            <input type="email" class="form-control" id="id_email" name="{{ formTut.email.name }}" value="{{ formTut.email.value }}" readonly>
                         </div>
-                        <button type="submit"><i class="fas fa-save"></i> Registrar Paciente </button>
-
+                        <button type="submit" style="margin-top: 10px;"><i class="fas fa-save"></i> Guardar Cambios </button>
                     </form>
                 </div>
             </div>

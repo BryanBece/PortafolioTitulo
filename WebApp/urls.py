@@ -33,10 +33,14 @@ urlpatterns = [
     
     #RegistroFono
     path('registroFono/', registroFono, name='registroFono'),
+    path('listaFonos/', listarFonos, name='listaFonos'),
+    path('editarFono/<int:id>/', editarFono, name='editarFono'),
+    path('eliminarFono/<int:id>/', eliminar_fono, name='eliminarFono'),
     #Comunas
     path('obtener_comunas/', obtener_comunas, name='obtener_comunas'),
     #RegistroPaciente - Tutor
     path('registroPaciente/', registroPacienteTutor, name='registroPaciente'),
+    path('editar_paciente_tutor/<int:id>/', editarPacienteTutor, name='editar_paciente_tutor'),
     
     
     #Reset Password
