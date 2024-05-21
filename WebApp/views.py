@@ -1,18 +1,17 @@
-from django.shortcuts import render
-from django.contrib import auth, messages
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from user.models import *
-from .forms import *
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
-from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template.loader import render_to_string
-from django.http import JsonResponse
 from datetime import datetime, timedelta, time, date
 
+from django.conf import settings
+from django.contrib import auth, messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.urls import reverse
+
+from .forms import *
+from user.models import *
 
 
 # Create your views here.
@@ -251,7 +250,7 @@ def resetearContrasena(request):
 
     return render(request, 'registration/resetearContrasena.html')
 
-#Registro Fonoaudiologos
+# Registro Fonoaudiologos
 @login_required
 def registroFono(request):
     data = {
@@ -268,8 +267,8 @@ def registroFono(request):
             if User.objects.filter(email=correo).exists():
                 messages.error(request, "El correo ya está registrado.")
             else:
-                #Crear Fono
-                formulario.save()
+                # Crear Fono
+                nuevo_fono = formulario.save()
     
                 # Crear un nuevo usuario
                 usu = User()
@@ -279,8 +278,31 @@ def registroFono(request):
                 usu.apellido = apellido
                 tipo_usuario_fonoaudiologo = tipo_usuario.objects.get(nombre_tipo_usuario='Fonoaudiologo')
                 usu.tipoUsuario = tipo_usuario_fonoaudiologo
-                usu.save() 
-                messages.success(request, f'Fonoaudiologo {nombre} creado')
+                usu.save()
+
+                # Asignar horario de trabajo de lunes a viernes de 09:00 a 18:00
+                horario_inicio = time(5, 0)
+                horario_fin = time(14, 0)
+                dias_semana = [HorasTrabajo.LUNES, HorasTrabajo.MARTES, HorasTrabajo.MIERCOLES, HorasTrabajo.JUEVES, HorasTrabajo.VIERNES]
+
+                for dia in dias_semana:
+                    HorasTrabajo.objects.create(
+                        doctor=nuevo_fono,
+                        dia_semana=dia,
+                        hora_inicio=datetime.combine(datetime.today(), horario_inicio),
+                        hora_fin=datetime.combine(datetime.today(), horario_fin)
+                    )
+                
+                # Enviar correo de bienvenida y restablecimiento de contraseña
+                token = default_token_generator.make_token(usu)
+                reset_url = reverse('setPassword', args=[usu.id, token])
+                link = request.build_absolute_uri(reset_url)
+                subject = 'Bienvenido a COFAM - Configura tu Contraseña'
+                html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombre, 'link': link})
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [correo], html_message=html_message)
+                
+                
+                messages.success(request, f'Fonoaudiologo {nombre} creado y horario asignado. Se ha enviado un correo para configurar la contraseña.')
                 return redirect('perfil')
             
         else:
@@ -298,8 +320,8 @@ def obtener_comunas(request):
 #Registro Paciente-Tutor
 @login_required
 def registroPacienteTutor(request):
-    data ={
-        "regiones" : Region.objects.all(),
+    data = {
+        "regiones": Region.objects.all(),
         'formPac': RegistroPacienteForm(),
         'formTut': RegistroTutorForm(),
         'rut': request.GET.get('rut')
@@ -316,7 +338,7 @@ def registroPacienteTutor(request):
             if User.objects.filter(email=correoTutor).exists():
                 messages.error(request, "El correo del tutor ya está registrado.")
             else:
-                #Crear Tutor
+                # Crear Tutor
                 formularioTutor.save()
                 
                 tut = Tutor.objects.get(email=correoTutor)
@@ -342,7 +364,15 @@ def registroPacienteTutor(request):
                 usuTut.tipoUsuario = tipo_usuario_tutor
                 usuTut.save()
                 
-                messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados')
+                # Enviar correo de bienvenida y restablecimiento de contraseña
+                token = default_token_generator.make_token(usuTut)
+                reset_url = reverse('setPassword', args=[usuTut.id, token])
+                link = request.build_absolute_uri(reset_url)
+                subject = 'Bienvenido a COFAM - Configura tu Contraseña'
+                html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombreTutor, 'link': link})
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [correoTutor], html_message=html_message)
+                
+                messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
                 return redirect('ficha_clinica', id=pac.id)
             
         else:
@@ -493,3 +523,22 @@ def sesionFono(request, id):
 def detalleSesion(request, id):
     sesion = get_object_or_404(SesionTerapeutica, id=id)
     return render(request, 'atencion/detalleSesion.html', {'sesion': sesion})
+
+def nuevaContrasenia(request, id, token):
+    user = User.objects.get(id=id)
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            password2 = request.POST.get('password2')
+            if password == password2:
+                user.set_password(password)
+                user.save()
+                messages.success(request, 'Tu contraseña ha sido establecida con éxito.')
+                return redirect('login')
+        else:
+            return render(request, 'registration/nuevaContrasenia.html')
+    else:
+        messages.error(request, 'El enlace de restablecimiento de contraseña no es válido, posiblemente ha caducado.')
+
+    return render(request, 'registration/nuevaContrasenia.html')
+

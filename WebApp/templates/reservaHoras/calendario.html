@@ -16,12 +16,7 @@
     }
 </style>
 <script>
-    $(document).ready(function () {
-        $('#calendario').datepicker({
-            minDate: 0, // No permitir seleccionar fechas anteriores a hoy
-            dateFormat: 'dd-mm-yy' // Formato de fecha (Año-Mes-Día)
-        });
-    });
+
 </script>
 
 <div class="container">
@@ -34,11 +29,11 @@
         </div>
         <div class="row justify-content-center mb-4">
             <div class="col-md-6">
-                <h3 class="text-center mb-3">Selecciona Un Doctor</h3>
+                <h3 class="text-center mb-3">Selecciona Un Fonoaudiologo</h3>
                 <select id="id_doctor" class="form-select" name="doctor_id">
-                    <option value="">Selecciona un doctor</option>
+                    <option value="">Selecciona un Fonoaudiologo</option>
                     {% for doctor in doctores %}
-                    <option value="{{ doctor.id }}">{{ doctor.nombre }}</option>
+                    <option value="{{ doctor.id }}">{{ doctor.nombre }} {{ doctor.apellido }}</option>
                     {% endfor %}
                 </select>
             </div>

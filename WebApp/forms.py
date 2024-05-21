@@ -9,7 +9,7 @@ class RegistroFonoForm(forms.ModelForm):
     class Meta:
         model = Fonoaudiologo
         fields = '__all__'
-        exclude = ['id', 'rut']
+        exclude = ['id']
         labels = {
             'nombre': 'Nombre',
             'apellido': 'Apellido',

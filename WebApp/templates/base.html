@@ -37,6 +37,13 @@
 
 <body style="background-color: #f6f3ee;">
 
+  <div id="loader" class="d-none">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+  </div>
+  
+
   <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
       <a class="navbar-brand" href="#" style="font-size: 40px; letter-spacing: 5px;">
@@ -128,6 +135,13 @@
         /* Ajusta este valor según la altura de tu navbar */
       }
     }
+    #loader {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1050;
+    }
   </style>
 
 
@@ -142,6 +156,31 @@
 
   <!-- Bootstrap JS (Optional - For Bootstrap Features Like Dropdowns, etc.) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        // Show loader on page load
+        $("#loader").removeClass("d-none");
+
+        // Hide loader once the page is fully loaded
+        $(window).on("load", function () {
+            $("#loader").addClass("d-none");
+        });
+
+        // Show loader when navigating to another page
+        $("a").on("click", function () {
+            $("#loader").removeClass("d-none");
+        });
+    });
+    $(document).ready(function () {
+        $('#calendario').datepicker({
+            minDate: 0, // No permitir seleccionar fechas anteriores a hoy
+            dateFormat: 'dd-mm-yy' // Formato de fecha (Año-Mes-Día)
+        });
+    });
+</script>
+
 </body>
 
 </html>

@@ -106,8 +106,6 @@ class HorasTrabajo(models.Model):
     MIERCOLES = 2
     JUEVES = 3
     VIERNES = 4
-    SABADO = 5
-    DOMINGO = 6
 
     DIA_CHOICES = [
         (LUNES, 'Lunes'),
@@ -115,8 +113,6 @@ class HorasTrabajo(models.Model):
         (MIERCOLES, 'Miércoles'),
         (JUEVES, 'Jueves'),
         (VIERNES, 'Viernes'),
-        (SABADO, 'Sábado'),
-        (DOMINGO, 'Domingo'),
     ]
 
     doctor = models.ForeignKey(Fonoaudiologo, related_name='horas_trabajo', on_delete=models.CASCADE)

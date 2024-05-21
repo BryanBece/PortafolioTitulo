@@ -42,6 +42,7 @@ urlpatterns = [
     #Reset Password
     path('resetearContrasena/', resetearContrasena, name='resetearContrasena'),
     path('restablecerContrasena/<int:id>/<str:token>/', restablecerContrasena, name='restablecerContrasena'),
+    path('setPassword/<int:id>/<str:token>/', nuevaContrasenia , name='setPassword'),
 
     #Preguntas
     path('preguntas/', preguntas, name='preguntas'),
