@@ -50,17 +50,21 @@ def logout(request):
 @login_required
 def perfil(request):
     if request.user.tipoUsuario.nombre_tipo_usuario in ["Fonoaudiologo", "Gerencia", "Tutor"]:
-        tomorrow = date.today() + timedelta(days=1)
-        reservas_futuras = ReservaHora.objects.filter(fecha__gte=tomorrow).filter(estado='Reservada').order_by('-id')
+        today = date.today()
+        tomorrow = today + timedelta(days=1)
+
+        reservas_hoy = ReservaHora.objects.filter(fecha=today, estado='Reservada').order_by('id')
+        reservas_futuras = ReservaHora.objects.filter(fecha__gte=tomorrow, estado='Reservada').order_by('id')
         
         data = {
-            'reservas_hoy': ReservaHora.objects.filter(fecha__gte=date.today()).filter(estado='Reservada').order_by('-id'),
+            'reservas_hoy': reservas_hoy,
             'reservas_total': ReservaHora.objects.exclude(estado='Reservada').order_by('-id'),
             'reservas_futuras': reservas_futuras,
         }
         return render(request, 'perfil.html', data)
     else:
         return render(request, 'perfil.html')
+
 
 #Vista Equipo
 def equipo(request):
