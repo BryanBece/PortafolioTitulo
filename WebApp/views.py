@@ -765,10 +765,6 @@ def filtrar_reservas(request):
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
         
-        # Validar que la fecha fin no sea mayor a la fecha actual
-        if fecha_fin > hoy:
-            fecha_fin = hoy
-
         reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
     else:
         reservas = ReservaHora.objects.all()

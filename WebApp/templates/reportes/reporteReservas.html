@@ -17,7 +17,7 @@
         </div>
         <div class="col-md-5">
             <label for="fechaFin" class="form-label">Fecha Fin</label>
-            <input type="date" class="form-control" id="fechaFin" name="fechaFin" max="{{ hoy }}" required>
+            <input type="date" class="form-control" id="fechaFin" name="fechaFin" required>
         </div>
         <div class="col-md-2 align-self-end">
             <button type="submit" class="btn btn-primary w-100">
@@ -26,21 +26,38 @@
         </div>
     </form>
 
-    <!-- Botones para fechas predefinidas -->
+    <!-- Fechas predefinidas -->
     <div class="row mt-3">
+        <!-- Botones para fechas pasadas -->
         <div class="col-md-4">
-            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(7)">
-                <i class="fas fa-calendar"></i> 1 Semana
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(-7)">
+                <i class="fas fa-calendar"></i> Semana Anterior
             </button>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(30)">
-                <i class="fas fa-calendar"></i> 1 Mes
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(-30)">
+                <i class="fas fa-calendar"></i> Mes Anterior
             </button>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(365)">
-                <i class="fas fa-calendar"></i> 1 Año
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(-365)">
+                <i class="fas fa-calendar"></i> Año Anterior
+            </button>
+        </div>
+        <!-- Botones para fechas futuras -->
+        <div class="col-md-4 mt-3">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRangeFuture(7)">
+                <i class="fas fa-calendar"></i> Semana Siguiente
+            </button>
+        </div>
+        <div class="col-md-4 mt-3">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRangeFuture(30)">
+                <i class="fas fa-calendar"></i> Mes Siguiente
+            </button>
+        </div>
+        <div class="col-md-4 mt-3">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRangeFuture(365)">
+                <i class="fas fa-calendar"></i> Año Siguiente
             </button>
         </div>
     </div>
@@ -49,25 +66,31 @@
         <!-- Aquí se mostrarán los resultados -->
     </div>
     <div id="exportButton" class="mt-3" style="display:none;">
-        <button id="exportarPDF" class="btn btn-danger">
-            <i class="fas fa-file-export"></i> Exportar a PDF
-        </button>
+        <button id="exportarPDF" class="btn btn-danger">Exportar a PDF</button>
     </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"></script>
 <script>
 function setDateRange(days) {
     var today = new Date();
     var endDate = today.toISOString().split('T')[0];
-    var startDate = new Date(today.setDate(today.getDate() - days)).toISOString().split('T')[0];
+    var startDate = new Date(today.setDate(today.getDate() + days)).toISOString().split('T')[0];
     document.getElementById('fechaInicio').value = startDate;
     document.getElementById('fechaFin').value = endDate;
 }
-$(document).ready(function() {
-    var hoy = new Date().toISOString().split('T')[0];
-    $('#fechaFin').attr('max', hoy);
 
+function setDateRangeFuture(days) {
+    var today = new Date();
+    var startDate = today.toISOString().split('T')[0];
+    var endDate = new Date(today.setDate(today.getDate() + days)).toISOString().split('T')[0];
+    document.getElementById('fechaInicio').value = startDate;
+    document.getElementById('fechaFin').value = endDate;
+}
+
+$(document).ready(function() {
     $('#fechaInicio').on('change', function() {
         let fechaInicio = $(this).val();
         $('#fechaFin').attr('min', fechaInicio);
@@ -96,6 +119,13 @@ $(document).ready(function() {
                     title: 'Reporte generado correctamente.',
                     showConfirmButton: false,
                     timer: 1500
+                });
+
+                // Inicializar DataTables con traducción al español
+                $('#reservasTable').DataTable({
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+                    }
                 });
             },
             error: function(xhr, errmsg, err) {
