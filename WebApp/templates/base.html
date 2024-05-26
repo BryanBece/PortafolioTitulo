@@ -64,7 +64,7 @@
           </li>
           {% if user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'calendario' %}"><i class="fas fa-chart-bar"></i> Reportes</a>
+            <a class="nav-link" href="{% url 'reportes' %}"><i class="fas fa-chart-bar"></i> Reportes</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'listaFonos' %}"><i class="fas fa-user"></i> Fonoaudiologos</a>
@@ -99,10 +99,14 @@
         </ul>
       </div>
       <!-- Botón "Reservar hora" en el lado derecho -->
+      {% if user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" or user.tipoUsuario.nombre_tipo_usuario == "Tutor" or not user.is_authenticated %}
       <div class="d-flex">
-        <a class="btn btn-primary btn-reservar-hora" href="{% url 'calendario' %}" role="button"><i
-            class="fas fa-calendar-plus"></i> Reservar hora</a>
+          <a class="btn btn-primary btn-reservar-hora" href="{% url 'calendario' %}" role="button">
+              <i class="fas fa-calendar-plus"></i> Reservar hora
+          </a>
       </div>
+      {% endif %}
+      
     </div>
   </nav>
 

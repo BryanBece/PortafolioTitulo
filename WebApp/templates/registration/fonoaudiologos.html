@@ -1,73 +1,77 @@
 {% extends 'base.html' %}
 
-{% block title %}Lista De Fonoaudiologos{% endblock %}
+{% block title %}Lista De Fonoaudiólogos{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2>Lista De Fonoaudiólogos</h2>
-        <a href="{% url 'registroFono' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Agregar Fonoaudiólogo
-        </a>
+    <div class="row mb-3">
+        <div class="col-md-8 col-12">
+            <h2>Lista De Fonoaudiólogos</h2>
+        </div>
+        <div class="col-md-4 col-12 text-md-right text-center">
+            <a href="{% url 'registroFono' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Agregar Fonoaudiólogo
+            </a>
+        </div>
     </div>
-    <table class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>RUT</th>
-                <th>Género</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Clínica</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fono in fonos %}
-            <tr>
-                <td>{{ fono.id }}</td>
-                <td>{{ fono.nombre }}</td>
-                <td>{{ fono.apellido }}</td>
-                <td>{{ fono.rut }}</td>
-                <td>{{ fono.genero }}</td>
-                <td>{{ fono.telefono }}</td>
-                <td>{{ fono.email }}</td>
-                <td>{{ fono.clinica }}</td>
-                <td>
-                    <a href="{% url 'editarFono' fono.id %}" class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-                    <button class="btn btn-danger btn-sm" onclick="eliminarFono({{ fono.id }})">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>RUT</th>
+                    <th>Género</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Clínica</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fono in fonos %}
+                <tr>
+                    <td>{{ fono.id }}</td>
+                    <td>{{ fono.nombre }}</td>
+                    <td>{{ fono.apellido }}</td>
+                    <td>{{ fono.rut }}</td>
+                    <td>{{ fono.genero }}</td>
+                    <td>{{ fono.telefono }}</td>
+                    <td>{{ fono.email }}</td>
+                    <td>{{ fono.clinica }}</td>
+                    <td>
+                        <a href="{% url 'editarFono' fono.id %}" class="btn btn-primary btn-sm mb-1">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>                  
+                        <button class="btn btn-danger btn-sm" onclick="eliminarFono({{ fono.id }})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
 <script>
     function eliminarFono(idFono) {
-      Swal.fire({
-        title: "¿Estás seguro que desear eliminar esta pregunta?",
-        text: "No podrás revertir esto",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#e7549c",
-        cancelButtonText: "Cancelar",
-        cancelButtonColor: "#c0bebf",
-        confirmButtonText: "Sí, eliminar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Redirige a la URL de eliminación
-          window.location.href = "{% url 'eliminarFono' 0 %}".replace(
-            "0",
-            idFono
-          );
-        }
-      });
+        Swal.fire({
+            title: "¿Estás seguro que deseas eliminar este fonoaudiólogo?",
+            text: "No podrás revertir esto",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#e7549c",
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: "#c0bebf",
+            confirmButtonText: "Sí, eliminar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirige a la URL de eliminación
+                window.location.href = "{% url 'eliminarFono' 0 %}".replace("0", idFono);
+            }
+        });
     }
 </script>
 

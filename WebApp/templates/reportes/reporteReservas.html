@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte Reservas{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="height: 85vh;">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Reporte de Reservas</h2>
+        <a href="{% url 'reportes' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+    <form id="filtroFechas" class="row g-3 my-4">
+        <div class="col-md-5">
+            <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required>
+        </div>
+        <div class="col-md-5">
+            <label for="fechaFin" class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" id="fechaFin" name="fechaFin" max="{{ hoy }}" required>
+        </div>
+        <div class="col-md-2 align-self-end">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-file-pdf"></i> Generar
+            </button>
+        </div>
+    </form>
+
+    <!-- Botones para fechas predefinidas -->
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(7)">
+                <i class="fas fa-calendar"></i> 1 Semana
+            </button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(30)">
+                <i class="fas fa-calendar"></i> 1 Mes
+            </button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-outline-secondary w-100" onclick="setDateRange(365)">
+                <i class="fas fa-calendar"></i> 1 Año
+            </button>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+function setDateRange(days) {
+    var today = new Date();
+    var endDate = today.toISOString().split('T')[0];
+    var startDate = new Date(today.setDate(today.getDate() - days)).toISOString().split('T')[0];
+    document.getElementById('fechaInicio').value = startDate;
+    document.getElementById('fechaFin').value = endDate;
+}
+$(document).ready(function() {
+    var hoy = new Date().toISOString().split('T')[0];
+    $('#fechaFin').attr('max', hoy);
+
+    $('#fechaInicio').on('change', function() {
+        let fechaInicio = $(this).val();
+        $('#fechaFin').attr('min', fechaInicio);
+    });
+
+    $('#filtroFechas').submit(function(event) {
+        event.preventDefault();
+
+        let fechaInicio = $('#fechaInicio').val();
+        let fechaFin = $('#fechaFin').val();
+
+        $.ajax({
+            url: "{% url 'filtrar_reservas' %}",
+            method: 'GET',
+            data: {
+                'fechaInicio': fechaInicio,
+                'fechaFin': fechaFin,
+            },
+            success: function(data) {
+                $('#reporteReservas').html(data.html);
+                $('#exportButton').show();
+                
+                // Mostrar la alerta
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Reporte generado correctamente.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+
+    $('#exportarPDF').click(function() {
+        let fechaInicio = $('#fechaInicio').val();
+        let fechaFin = $('#fechaFin').val();
+        window.location.href = "{% url 'exportar_reservas_pdf' %}?fechaInicio=" + fechaInicio + "&fechaFin=" + fechaFin;
+    });
+});
+</script>
+{% endblock %}

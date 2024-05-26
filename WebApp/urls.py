@@ -62,6 +62,12 @@ urlpatterns = [
     path('sesion/<int:id>', sesionFono, name='sesion'),
     path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),
     
+    #Reportes
+    path('reportes/', reportePrincipal, name='reportes'),
+    path('exportar-datos/', export_data_to_excel, name='exportar_datos'),
+    path('reporteReservas/', reporteReservas, name='reporteReservas'),
+    path('filtrar-reservas/', filtrar_reservas, name='filtrar_reservas'),
+    path('exportar-reservas-pdf/', exportar_reservas_pdf, name='exportar_reservas_pdf'),
     
 
 ]

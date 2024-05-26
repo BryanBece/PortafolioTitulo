@@ -1,0 +1,33 @@
+<!-- reportes/tablaReservas.html -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Fonoaudiologo</th>
+            <th>Nombre Paciente</th>
+            <th>Apellido Paciente</th>
+            <th>RUT Paciente</th>
+            <th>Teléfono Paciente</th>
+            <th>Email Paciente</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reserva in reservas %}
+        <tr>
+            <td>{{ reserva.id }}</td>
+            <td>{{ reserva.fecha }}</td>
+            <td>{{ reserva.hora }}</td>
+            <td>{{ reserva.fonoaudiologo }}</td>
+            <td>{{ reserva.nombrePaciente }}</td>
+            <td>{{ reserva.apellidoPaciente }}</td>
+            <td>{{ reserva.rutPaciente }}</td>
+            <td>{{ reserva.telefonoPaciente }}</td>
+            <td>{{ reserva.emailPaciente }}</td>
+            <td>{{ reserva.estado }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

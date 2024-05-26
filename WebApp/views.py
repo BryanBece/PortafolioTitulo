@@ -12,7 +12,16 @@ from django.urls import reverse
 
 from .forms import *
 from user.models import *
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from io import BytesIO
+from reportlab.lib.units import mm
 
 # Create your views here.
 
@@ -618,3 +627,228 @@ def eliminar_fono(request, id):
     messages.success(request, 'Fonoaudiologo eliminado correctamente.')
     return redirect('listaFonos')
     
+    
+# ------------------- Reportes -------------------
+@login_required
+def reportePrincipal(request):
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Gerencia':
+        return render(request, 'reportes/reportesPrincipal.html')
+    else:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('perfil')
+    
+#Base De Datos
+@login_required
+def export_data_to_excel(request):
+    # Crear un libro de trabajo y hojas
+    workbook = openpyxl.Workbook()
+    fonoaudiologo_sheet = workbook.active
+    fonoaudiologo_sheet.title = 'Fonoaudiologos'
+    paciente_sheet = workbook.create_sheet(title='Pacientes')
+    reserva_sheet = workbook.create_sheet(title='Reservas')
+
+    # Definir estilos
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+    thin_border = Border(left=Side(style='thin'), 
+                         right=Side(style='thin'), 
+                         top=Side(style='thin'), 
+                         bottom=Side(style='thin'))
+    alignment = Alignment(horizontal='center', vertical='center')
+
+    # Escribir los encabezados de las columnas con estilos
+    headers = [
+        ('Fonoaudiologos', ['ID', 'Nombre', 'Apellido', 'RUT', 'Género', 'Teléfono', 'Email', 'Clínica']),
+        ('Pacientes', ['ID', 'Nombre', 'Apellido', 'RUT', 'Fecha Nacimiento', 'Género', 'Teléfono', 'Dirección', 'Comuna', 'Tutor']),
+        ('Reservas', ['ID', 'Fecha', 'Hora', 'Fonoaudiologo', 'Nombre Paciente', 'Apellido Paciente', 'RUT Paciente', 'Teléfono Paciente', 'Email Paciente', 'Estado'])
+    ]
+    sheets = [fonoaudiologo_sheet, paciente_sheet, reserva_sheet]
+
+    for sheet, header in zip(sheets, headers):
+        sheet.append(header[1])
+        for col in range(1, len(header[1]) + 1):
+            cell = sheet.cell(row=1, column=col)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.border = thin_border
+            cell.alignment = alignment
+
+    # Ajustar el ancho de las columnas
+    column_widths = {
+        'Fonoaudiologos': [5, 20, 20, 12, 10, 12, 25, 20],
+        'Pacientes': [5, 20, 20, 15, 15, 10, 12, 30, 20, 20],
+        'Reservas': [5, 12, 10, 20, 20, 20, 15, 12, 25, 10]
+    }
+
+    for sheet, widths in zip(sheets, column_widths.values()):
+        for i, width in enumerate(widths, start=1):
+            sheet.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
+
+    # Obtener los datos de los modelos y escribirlos en las hojas con estilos
+    for fono in Fonoaudiologo.objects.all():
+        row = [
+            fono.id, 
+            fono.nombre, 
+            fono.apellido, 
+            fono.rut, 
+            fono.genero.genero, 
+            fono.telefono, 
+            fono.email, 
+            fono.clinica.nombre
+        ]
+        fonoaudiologo_sheet.append(row)
+        for col in range(1, len(row) + 1):
+            cell = fonoaudiologo_sheet.cell(row=fonoaudiologo_sheet.max_row, column=col)
+            cell.border = thin_border
+            cell.alignment = alignment
+
+    for paciente in Paciente.objects.all():
+        row = [
+            paciente.id, 
+            paciente.nombre, 
+            paciente.apellido, 
+            paciente.rut, 
+            paciente.fechaNacimiento.strftime('%Y-%m-%d'),  # Formatear fecha
+            paciente.genero.genero, 
+            paciente.telefono, 
+            paciente.direccion, 
+            paciente.comuna.comuna, 
+            paciente.tutor.nombre
+        ]
+        paciente_sheet.append(row)
+        for col in range(1, len(row) + 1):
+            cell = paciente_sheet.cell(row=paciente_sheet.max_row, column=col)
+            cell.border = thin_border
+            cell.alignment = alignment
+
+    for reserva in ReservaHora.objects.all():
+        row = [
+            reserva.id, 
+            reserva.fecha.strftime('%Y-%m-%d'),  # Formatear fecha
+            reserva.hora.strftime('%H:%M:%S'),  # Formatear hora
+            str(reserva.fonoaudiologo),  # Convertir objeto a cadena
+            reserva.nombrePaciente, 
+            reserva.apellidoPaciente, 
+            reserva.rutPaciente, 
+            reserva.telefonoPaciente, 
+            reserva.emailPaciente, 
+            reserva.estado
+        ]
+        reserva_sheet.append(row)
+        for col in range(1, len(row) + 1):
+            cell = reserva_sheet.cell(row=reserva_sheet.max_row, column=col)
+            cell.border = thin_border
+            cell.alignment = alignment
+
+    # Configurar la respuesta HTTP para la descarga del archivo
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=datos.xlsx'
+    messages.success(request, 'Datos exportados correctamente.')
+    workbook.save(response)
+
+    return response
+
+
+#Reporte Reservas
+@login_required
+def reporteReservas(request):
+    hoy = datetime.now().date().isoformat()
+    return render(request, 'reportes/reporteReservas.html', {'hoy': hoy})
+
+@login_required
+def filtrar_reservas(request):
+    fecha_inicio = request.GET.get('fechaInicio')
+    fecha_fin = request.GET.get('fechaFin')
+    hoy = datetime.now().date()
+
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+        
+        # Validar que la fecha fin no sea mayor a la fecha actual
+        if fecha_fin > hoy:
+            fecha_fin = hoy
+
+        reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+    else:
+        reservas = ReservaHora.objects.all()
+
+    context = {
+        'reservas': reservas
+    }
+
+    html = render_to_string('reportes/tablaReservas.html', context)
+    return JsonResponse({'html': html})
+
+def _add_page_number(canvas, doc):
+    page_num = canvas.getPageNumber()
+    text = "Page %s" % page_num
+    canvas.drawRightString(200*mm, 20*mm, text)
+
+# Also set the title of the PDF
+buffer = BytesIO()
+doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+canvas = canvas.Canvas(buffer, pagesize=landscape(letter))
+
+@login_required
+def exportar_reservas_pdf(request):
+    fecha_inicio = request.GET.get('fechaInicio')
+    fecha_fin = request.GET.get('fechaFin')
+
+    if fecha_inicio and fecha_fin:
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+        reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+    else:
+        reservas = ReservaHora.objects.all()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_reservas.pdf"'
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elements = []
+
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    title_style.alignment = 1  # Center alignment
+    elements.append(Paragraph("Reporte de Reservas", title_style))
+
+    subtitle_style = styles['Normal']
+    elements.append(Paragraph(f"Desde: {fecha_inicio} Hasta: {fecha_fin}", subtitle_style))
+
+    data = [["Fonoaudiologo", "Nombre Paciente", "RUT Paciente", "Teléfono Paciente", "Email Paciente", "Fecha", "Hora"]]
+
+    for reserva in reservas:
+        data.append([
+            reserva.fonoaudiologo,
+            reserva.nombrePaciente + " " + reserva.apellidoPaciente,
+            reserva.rutPaciente,
+            reserva.telefonoPaciente,
+            reserva.emailPaciente,
+            reserva.fecha.strftime('%Y-%m-%d'),
+            reserva.hora.strftime('%H:%M:%S'),
+        ])
+
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    elements.append(table)
+
+    doc.build(elements, onFirstPage=_add_page_number, onLaterPages=_add_page_number)
+    doc.pagesize = landscape(letter)
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+
+    return response
+
+

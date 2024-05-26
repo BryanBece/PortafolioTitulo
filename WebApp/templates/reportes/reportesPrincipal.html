@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center align-items-center" id="container">
+    <h2 class="text-center mb-4">Reportes</h2>
+    <img src="{% static 'images/sales-reporting.png' %}" alt="Reporte de Ventas" class="img-fluid mb-4 report-image">
+    <div class="d-flex justify-content-center flex-wrap">
+        <div class="m-2">
+            <a href="{% url 'perfil' %}" class="btn btn-primary">
+                <i class="fas fa-user"></i> Pacientes
+            </a>
+        </div>
+        <div class="m-2">
+            <a href="{% url 'perfil' %}" class="btn btn-primary">
+                <i class="fas fa-user-md"></i> Fonoaudiólogos
+            </a>
+        </div>
+        <div class="m-2">
+            <a href="{% url 'reporteReservas' %}" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Reservas
+            </a>
+        </div>
+        <div class="m-2">
+            <a href="{% url 'exportar_datos' %}" class="btn btn-primary">
+                <i class="fas fa-database"></i> Base De Datos
+            </a>
+        </div>        
+    </div>
+</div>
+
+<style>
+    #container {
+        height: 80vh;
+    }
+    .btn {
+        white-space: nowrap;
+    }
+    .report-image {
+        max-width: 50%;
+        height: auto; 
+        background-color: transparent;
+    }
+    
+</style>
+{% endblock %}
