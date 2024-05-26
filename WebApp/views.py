@@ -780,15 +780,7 @@ def filtrar_reservas(request):
     html = render_to_string('reportes/tablaReservas.html', context)
     return JsonResponse({'html': html})
 
-def _add_page_number(canvas, doc):
-    page_num = canvas.getPageNumber()
-    text = "Page %s" % page_num
-    canvas.drawRightString(200*mm, 20*mm, text)
 
-# Also set the title of the PDF
-buffer = BytesIO()
-doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-canvas = canvas.Canvas(buffer, pagesize=landscape(letter))
 
 @login_required
 def exportar_reservas_pdf(request):
@@ -799,6 +791,7 @@ def exportar_reservas_pdf(request):
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
         reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+        print(reservas)
     else:
         reservas = ReservaHora.objects.all()
 
@@ -851,4 +844,12 @@ def exportar_reservas_pdf(request):
 
     return response
 
+def _add_page_number(canvas, doc):
+    page_num = canvas.getPageNumber()
+    text = "Page %s" % page_num
+    canvas.drawRightString(200*mm, 20*mm, text)
 
+# Also set the title of the PDF
+buffer = BytesIO()
+doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+canvas = canvas.Canvas(buffer, pagesize=landscape(letter))
