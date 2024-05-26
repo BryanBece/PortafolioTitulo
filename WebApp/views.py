@@ -69,6 +69,7 @@ def perfil(request):
             'reservas_hoy': reservas_hoy,
             'reservas_total': ReservaHora.objects.exclude(estado='Reservada').order_by('-id'),
             'reservas_futuras': reservas_futuras,
+            'logs': Log.objects.all().order_by('-id')
         }
         return render(request, 'perfil.html', data)
     else:
@@ -176,6 +177,9 @@ def reservaHora(request):
             res.emailPaciente = email
             res.save()
             
+            log = Log(username = email, accion = 'Reserva de Hora')
+            log.save()
+            
             try:
                 subject = 'Confirmación Reserva De Hora - COFAM'
                 html_message = render_to_string('reservaHoras/confirmacionCorreo.html', {'fecha': fecha_reserva, 'hora': hora, 'fonoaudiologo': doctor, 'nombre': nombre, 'apellido': apellido, 'rut': rut})
@@ -209,6 +213,9 @@ def cancelarReserva(request, id):
         html_message = render_to_string('reservaHoras/cancelarCorreo.html', {'fecha': fecha_reserva, 'hora': hora, 'fonoaudiologo': doctor, 'nombre': nombre, 'apellido': apellido, 'rut': rut})
         send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
         reserva.delete()
+        
+        log = Log(username = email, accion = 'Cancelación de Reserva')
+        log.save()
     
         messages.success(request, 'Reserva cancelada con éxito')
                 
@@ -230,6 +237,10 @@ def restablecerContrasena(request, id, token):
             if default_token_generator.check_token(user, token):
                 user.set_password(password)
                 user.save()
+                
+                log = Log(username = user.email, accion = 'Restablecimiento de Contraseña')
+                log.save()
+                
                 messages.success(request, 'Contraseña restablecida con éxito')
                 return redirect('login')
             else:
@@ -253,6 +264,9 @@ def resetearContrasena(request):
                 html_message = render_to_string('registration/reset_password_email.html', {'reset_url': link})
 
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
+                
+                log = Log(username = email, accion = 'Solicitud de Restablecimiento de Contraseña')
+                log.save()
                 
                 messages.success(request, 'Correo enviado con éxito.')
             except Exception as e:
@@ -314,6 +328,8 @@ def registroFono(request):
                 html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombre, 'link': link})
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [correo], html_message=html_message)
                 
+                log = Log(username = correo, accion = 'Registro de Fonoaudiologo')
+                log.save()
                 
                 messages.success(request, f'Fonoaudiologo {nombre} creado. Se ha enviado un correo para configurar la contraseña.')
                 return redirect('listaFonos')
@@ -385,6 +401,9 @@ def registroPacienteTutor(request):
                 html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombreTutor, 'link': link})
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [correoTutor], html_message=html_message)
                 
+                log = Log(username = correoTutor, accion = 'Registro de Paciente y Tutor')
+                log.save()
+                
                 messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
                 return redirect('ficha_clinica', id=pac.id)
             
@@ -414,6 +433,10 @@ def crearPreguntas(request):
         if formulario.is_valid():
             formulario.save()
             messages.success(request, "Pregunta Creada Correctamente")
+            
+            log = Log(username = request.user.email, accion = 'Creación de Pregunta')
+            log.save()
+            
             return redirect(to="preguntas")
         else:
             data["form"] = formulario
@@ -431,6 +454,10 @@ def modificarPreguntas(request,id):
         
         if formulario.is_valid():
             formulario.save()
+            
+            log = Log(username = request.user.email, accion = 'Modificación de Pregunta')
+            log.save()
+            
             messages.success(request, "Modificado Correctamente")
             return redirect(to="preguntas")
         data["form"] = formulario
@@ -441,6 +468,10 @@ def modificarPreguntas(request,id):
 def eliminarPreguntas(request, id):
     Preguntas = PreguntaFormulario.objects.get(id=id)
     Preguntas.delete()
+    
+    log = Log(username = request.user.email, accion = 'Eliminación de Pregunta')
+    log.save()
+    
     messages.success(request, "Eliminado Correctamente")
     return redirect(to="preguntas")
 
@@ -452,6 +483,10 @@ def sesionAsistida(request, id):
     reserva = ReservaHora.objects.get(id=id)
     reserva.estado = 'Asistida'
     reserva.save()
+    
+    log = Log(username = request.user.email, accion = 'Sesión Asistida')
+    log.save()
+    
     messages.success(request, "Guardada Correctamente")
     return redirect(to="perfil")
 
@@ -461,6 +496,10 @@ def sesionNoAsistida(request, id):
     reserva = ReservaHora.objects.get(id=id)
     reserva.estado = 'No Asistid'
     reserva.save()
+    
+    log = Log(username = request.user.email, accion = 'Sesión No Asistida')
+    log.save()
+    
     messages.success(request, "Guardada Correctamente")
     return redirect(to="perfil")
 
@@ -558,12 +597,16 @@ def nuevaContrasenia(request, id, token):
             if password == password2:
                 user.set_password(password)
                 user.save()
+                
+                log = Log(username = user.email, accion = 'Asignación de Contraseña')
+                log.save()
+                
                 messages.success(request, 'Tu contraseña ha sido establecida con éxito.')
                 return redirect('login')
         else:
             return render(request, 'registration/nuevaContrasenia.html')
     else:
-        messages.error(request, 'El enlace de restablecimiento de contraseña no es válido, posiblemente ha caducado.')
+        messages.error(request, 'El enlace de Asignación de contraseña no es válido, posiblemente ha caducado.')
 
     return render(request, 'registration/nuevaContrasenia.html')
 
@@ -580,6 +623,10 @@ def editarPacienteTutor(request, id):
         if formPac.is_valid() and formTut.is_valid():
             formPac.save()
             formTut.save()
+            
+            log = Log(username = tutor.email, accion = 'Edición de Paciente y Tutor')
+            log.save()
+            
             messages.success(request, 'Datos actualizados correctamente.')
             return redirect('fichaClinica', id=paciente.id)
     else:
@@ -611,6 +658,10 @@ def editarFono(request, id):
         form = RegistroFonoForm(request.POST, instance=fono)
         if form.is_valid():
             form.save()
+            
+            log = Log(username = fono.email, accion = 'Edición de Fonoaudiologo')
+            log.save()
+            
             messages.success(request, 'Fonoaudiologo actualizado correctamente.')
             return redirect('listaFonos')
     else:
@@ -624,6 +675,10 @@ def eliminar_fono(request, id):
     usuario = User.objects.get(email=fono.email)
     usuario.delete()
     fono.delete()
+    
+    log = Log(username = fono.email, accion = 'Eliminación de Fonoaudiologo')
+    log.save()
+    
     messages.success(request, 'Fonoaudiologo eliminado correctamente.')
     return redirect('listaFonos')
     
@@ -787,7 +842,6 @@ def exportar_reservas_pdf(request):
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
         reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
-        print(reservas)
     else:
         reservas = ReservaHora.objects.all()
 

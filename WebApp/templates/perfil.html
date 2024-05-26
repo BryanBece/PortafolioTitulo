@@ -100,10 +100,12 @@
                     <button class="btn btn-danger" disabled>No Asistida</button>
                     {% endif %}
                 </td>
-                <td> <!-- Celda para el botón "Buscar Paciente" -->
-                    <a href="{% url 'busquedaPaciente' %}?rut={{ reserva.rutPaciente }}" class="btn btn-warning">Buscar Paciente</a>
+                <td>
+                    <!-- Celda para el botón "Buscar Paciente" -->
+                    <a href="{% url 'busquedaPaciente' %}?rut={{ reserva.rutPaciente }}" class="btn btn-warning">Buscar
+                        Paciente</a>
                 </td>
-                
+
             </tr>
             {% endif %}
             {% endfor %}
@@ -112,104 +114,107 @@
 
     <!-- PERFIL GERENCIA -->
     {% elif user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
-    <h2>Siguientes horas agendadas:</h2>
-    {% if reservas_futuras %}
-    <table id="reservasGerenciaTable" class="table table-striped">
+    <h2>Actividad Reciente:</h2>
+    {% if logs %}
+    <table id="logsTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Texto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td>{{ log.username }}</td>
+                <td>{{ log.fecha_inicio }}</td>
+                <td>{{ log.texto }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay actividad reciente.</p>
+    {% endif %}
+
+
+    <!-- PERFIL TUTOR -->
+    {% elif user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
+    <h2>Tus siguientes horas agendadas:</h2>
+    {% if reservas %}
+    <table id="reservasTutorTable" class="table table-striped">
         <thead>
             <tr>
                 <th>Fecha</th>
                 <th>Hora</th>
-                <th>Fonoaudiologo</th>
                 <th>Paciente</th>
-                <th>Teléfono Paciente</th>
-            </tr
-          </thead>
-          <tbody>
-              {% for reserva in reservas_futuras %}
-              <tr>
-                  <td>{{ reserva.fecha }}</td>
-                  <td>{{ reserva.hora }}</td>
-                  <td>{{ reserva.fonoaudiologo }}</td>
-                  <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
-                  <td>{{ reserva.telefonoPaciente }}</td>
-              </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-      {% else %}
-      <p>No tienes horas reservadas.</p>
-      {% endif %}
-  
-      <!-- PERFIL TUTOR -->
-      {% elif user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
-      <h2>Tus siguientes horas agendadas:</h2>
-      {% if reservas %}
-      <table id="reservasTutorTable" class="table table-striped">
-          <thead>
-              <tr>
-                  <th>Fecha</th>
-                  <th>Hora</th>
-                  <th>Paciente</th>
-                  <th>Acciones</th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for reserva in reservas %}
-              {% if reserva.emailPaciente == user.email %}
-              <tr>
-                  <td>{{ reserva.fecha }}</td>
-                  <td>{{ reserva.hora }}</td>
-                  <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
-                  <td>
-                      <a href="#" onclick="cancelarReserva({{ reserva.id }})" class="btn btn-danger">Cancelar</a>
-                  </td>
-              </tr>
-              {% endif %}
-              {% endfor %}
-          </tbody>
-      </table>
-      {% else %}
-      <p>No tienes horas reservadas.</p>
-      {% endif %}
-      {% else %}
-  
-      {% endif %}
-  </div>
-  
-  <script>
-      // Función para inicializar DataTables en cada tabla
-      $(document).ready(function() {
-          $('#reservasHoyTable').DataTable({
-              language: {
-                  url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-              }
-          });
-  
-          $('#reservasFuturasTable').DataTable({
-              language: {
-                  url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-              }
-          });
-  
-          $('#reservasTotalTable').DataTable({
-              language: {
-                  url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-              }
-          });
-  
-          $('#reservasGerenciaTable').DataTable({
-              language: {
-                  url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-              }
-          });
-  
-          $('#reservasTutorTable').DataTable({
-              language: {
-                  url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-              }
-          });
-      });
-  </script>
-  
-  {% endblock %}
-  
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            {% if reserva.emailPaciente == user.email %}
+            <tr>
+                <td>{{ reserva.fecha }}</td>
+                <td>{{ reserva.hora }}</td>
+                <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
+                <td>
+                    <a href="#" onclick="cancelarReserva({{ reserva.id }})" class="btn btn-danger">Cancelar</a>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tienes horas reservadas.</p>
+    {% endif %}
+    {% else %}
+
+    {% endif %}
+</div>
+
+<script>
+    // Función para inicializar DataTables en cada tabla
+    $(document).ready(function () {
+        $('#reservasHoyTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] 
+        });
+
+        $('#reservasFuturasTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] 
+        });
+
+        $('#reservasTotalTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] 
+        });
+
+        $('#logsTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] 
+        });
+
+        $('#reservasTutorTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] 
+        });
+    });
+</script>
+
+{% endblock %}

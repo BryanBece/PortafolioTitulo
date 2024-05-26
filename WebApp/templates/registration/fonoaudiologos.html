@@ -15,7 +15,7 @@
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table table-striped mt-3">
+        <table id="fonoaudiologosTable" class="table table-striped mt-3">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -56,6 +56,15 @@
 </div>
 
 <script>
+    $(document).ready(function() {
+        $('#fonoaudiologosTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] // Ordenar por el ID de forma descendente
+        });
+    });
+
     function eliminarFono(idFono) {
         Swal.fire({
             title: "¿Estás seguro que deseas eliminar este fonoaudiólogo?",
