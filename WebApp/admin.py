@@ -67,3 +67,9 @@ class PreguntaAdmin(admin.ModelAdmin):
 class RespuestaAdmin(admin.ModelAdmin):
     list_display = ['id','respuesta', 'pregunta', 'paciente','fechaRespuesta']
     search_fields = ['respuesta', 'pregunta', 'paciente']
+    
+@admin.register(OIRS)
+class OIRSAdmin(admin.ModelAdmin):
+    list_display = ('tipo_mensaje', 'nombre', 'email', 'telefono','estado', 'mensaje','fecha_creacion')
+    list_filter = ('tipo_mensaje', 'fecha_creacion','estado')
+    search_fields = ('nombre', 'email', 'mensaje', 'telefono','estado')

@@ -1,8 +1,47 @@
 {% extends 'base.html' %}
 
 {% block title %}Nosotros{% endblock %}
+{% load static %}
 
 {% block content %}
-
-
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h1 class="text-center mb-4">Conócenos</h1>
+            <div class="text-center mb-4">
+                <img src="{% static 'images/fachada.png' %}" class="img-fluid rounded shadow-sm" alt="Imagen de fonoaudiología" style="max-height: 300px; object-fit: cover;">
+            </div>
+            <div class="card-deck mb-4">
+                <div class="card shadow-sm rounded">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Nuestra Historia</h5>
+                        <p class="card-text text-justify">
+                            En el corazón de Santiago, Chile, se encuentra el <strong>Colegio de Fonoaudiólogos Para El Adulto Mayor</strong>, una institución fundada en 2010 por un grupo de apasionados fonoaudiólogos. Nuestra misión es mejorar la calidad de vida de los adultos mayores mediante la atención fonoaudiológica especializada. Comenzamos con la visión de la Dra. María Fernández, una destacada fonoaudióloga con más de 20 años de experiencia, quien reconoció la necesidad urgente de un espacio dedicado exclusivamente a atender las necesidades comunicativas y de deglución de los adultos mayores.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck mb-4">
+                <div class="card shadow-sm rounded">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Nuestro Compromiso</h5>
+                        <p class="card-text text-justify">
+                            Nos dedicamos a la educación y prevención, organizando talleres y charlas educativas para concienciar sobre la importancia de la salud comunicativa en la tercera edad. Creemos en la importancia de la atención personalizada y holística, por lo que nuestro equipo multidisciplinario de especialistas en fonoaudiología, psicología y terapia ocupacional se esfuerza por diseñar planes de tratamiento adaptados a las necesidades individuales de cada paciente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-deck mb-4">
+                <div class="card shadow-sm rounded">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Nuestro Futuro</h5>
+                        <p class="card-text text-justify">
+                            Nuestra visión de futuro es clara: queremos ser un referente en la atención fonoaudiológica para adultos mayores no solo en Santiago, sino en toda Chile. Seguimos invirtiendo en la formación continua de nuestro equipo y en la innovación tecnológica, siempre con el objetivo de brindar un servicio de excelencia. En el Colegio de Fonoaudiólogos Para El Adulto Mayor, cada historia de éxito, cada avance y cada sonrisa es nuestra mayor recompensa.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

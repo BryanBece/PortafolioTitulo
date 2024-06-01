@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo mensaje OIRS</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .card {
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        .card-body {
+            background-color: #ffffff;
+            border-radius: 0 0 10px 10px;
+        }
+        h1.card-title {
+            color: #ffffff;
+        }
+        p.card-text {
+            color: #555555;
+        }
+        strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title text-center">Nuevo mensaje OIRS</h1>
+        </div>
+        <div class="card-body">
+            <p class="card-text"><strong>Tipo de mensaje:</strong> {{ tipo_mensaje }}</p>
+            <p class="card-text"><strong>Nombre:</strong> {{ nombre }}</p>
+            <p class="card-text"><strong>Email:</strong> {{ email }}</p>
+            <p class="card-text"><strong>Mensaje:</strong> {{ mensaje }}</p>
+        </div>
+    </div>
+</body>
+</html>

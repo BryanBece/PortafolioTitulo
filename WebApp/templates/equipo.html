@@ -1,8 +1,50 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Nuestro Equipo{% endblock %}
 
 {% block content %}
+<style>
+    .card-img-top {
+        height: 400px; /* Altura fija */
+        object-fit: cover; /* Recorta y ajusta la imagen para que quepa */
+    }
+    .card {
+        min-width: 250px; /* Ancho mínimo para mantener el tamaño de las tarjetas */
+    }
+</style>
 
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{% static 'images/fono1.png' %}" class="card-img-top img-fluid" alt="Dra. María López">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dra. María López</h5>
+                    <p class="card-text">Especialista en audiología con más de 10 años de experiencia.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{% static 'images/fono2.png' %}" class="card-img-top img-fluid" alt="Dra. Laura Sánchez">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Dra. Laura Sánchez</h5>
+                    <p class="card-text">Fonoaudióloga experta en terapia del lenguaje y comunicación.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{% static 'images/fono3.png' %}" class="card-img-top img-fluid" alt="Lic. Ana María Torres">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Lic. Ana María Torres</h5>
+                    <p class="card-text">Terapeuta de audición y lenguaje, especializada en el adulto mayor.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

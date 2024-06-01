@@ -84,9 +84,45 @@ def equipo(request):
 def nosotros(request):
     return render(request, 'nosotros.html')
 
-#Vista OIRS
+# Vista OIRS
 def oirs(request):
-    return render(request, 'oirs.html')
+    if request.method == 'POST':
+        form = OIRSMensajeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            
+            # Extraer los datos del formulario
+            tipo_mensaje = form.cleaned_data.get('tipo_mensaje')
+            nombre = form.cleaned_data.get('nombre')
+            email = form.cleaned_data.get('email')
+            mensaje = form.cleaned_data.get('mensaje')
+            
+            log = Log(username = email, texto = 'Envío de Mensaje OIRS')
+            log.save()
+            
+            # Renderizar el template del correo electrónico
+            html_message = render_to_string('oirs/correoOirs.html', {
+                'tipo_mensaje': tipo_mensaje,
+                'nombre': nombre,
+                'email': email,
+                'mensaje': mensaje,
+            })
+
+            # Preparar el contenido del correo electrónico
+            subject = 'Nuevo mensaje OIRS'
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = ['correo.proyectos.duoc@gmail.com']  # Dirección de correo a la que se enviará el mensaje
+
+            # Intentar enviar el correo electrónico
+            try:
+                send_mail(subject, None, from_email, recipient_list, html_message=html_message)
+                messages.success(request, 'Su mensaje ha sido enviado con éxito.')
+                return redirect('oirs')
+            except Exception as e:
+                messages.error(request, 'Error al enviar el correo electrónico. Por favor, inténtelo de nuevo más tarde.')
+    else:
+        form = OIRSMensajeForm()
+    return render(request, 'oirs/oirs.html', {'form': form})
 
 # ------------------- Reserva de horas -------------------
 
@@ -150,13 +186,25 @@ def reservaHora(request):
     doctor_id = request.GET.get('fonoaudiologo')
     hora = request.GET.get('hora')
     doctor = Fonoaudiologo.objects.get(pk=doctor_id)
-    data = {
-        'form': ReservaHoraForm(),
-        'fecha_reserva': fecha_reserva,
-        'hora': hora,
-        'doctor': doctor
-    }
     
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+        tutor = Tutor.objects.get(email=request.user.email)
+        paciente = Paciente.objects.get(tutor=tutor)
+        data = {
+            'form': ReservaHoraForm(initial={'nombrePaciente': paciente.nombre, 'apellidoPaciente': paciente.apellido, 'rutPaciente': paciente.rut, 'telefonoPaciente': paciente.telefono, 'emailPaciente': paciente.tutor.email}),
+            'fecha_reserva': fecha_reserva,
+            'hora': hora,
+            'doctor': doctor
+        }
+        
+    else:   
+        data = {
+            'form': ReservaHoraForm(),
+            'fecha_reserva': fecha_reserva,
+            'hora': hora,
+            'doctor': doctor
+        }
+        
     if request.method == 'POST':
         formulario = ReservaHoraForm(request.POST)
         if formulario.is_valid():
@@ -177,7 +225,7 @@ def reservaHora(request):
             res.emailPaciente = email
             res.save()
             
-            log = Log(username = email, accion = 'Reserva de Hora')
+            log = Log(username = email, texto = 'Reserva de Hora')
             log.save()
             
             try:
@@ -214,7 +262,7 @@ def cancelarReserva(request, id):
         send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
         reserva.delete()
         
-        log = Log(username = email, accion = 'Cancelación de Reserva')
+        log = Log(username = email, texto = 'Cancelación de Reserva')
         log.save()
     
         messages.success(request, 'Reserva cancelada con éxito')
@@ -238,7 +286,7 @@ def restablecerContrasena(request, id, token):
                 user.set_password(password)
                 user.save()
                 
-                log = Log(username = user.email, accion = 'Restablecimiento de Contraseña')
+                log = Log(username = user.email, texto = 'Restablecimiento de Contraseña')
                 log.save()
                 
                 messages.success(request, 'Contraseña restablecida con éxito')
@@ -265,7 +313,7 @@ def resetearContrasena(request):
 
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [email], html_message=html_message)
                 
-                log = Log(username = email, accion = 'Solicitud de Restablecimiento de Contraseña')
+                log = Log(username = email, texto = 'Solicitud de Restablecimiento de Contraseña')
                 log.save()
                 
                 messages.success(request, 'Correo enviado con éxito.')
@@ -328,7 +376,7 @@ def registroFono(request):
                 html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombre, 'link': link})
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [correo], html_message=html_message)
                 
-                log = Log(username = correo, accion = 'Registro de Fonoaudiologo')
+                log = Log(username = correo, texto = 'Registro de Fonoaudiologo')
                 log.save()
                 
                 messages.success(request, f'Fonoaudiologo {nombre} creado. Se ha enviado un correo para configurar la contraseña.')
@@ -401,7 +449,7 @@ def registroPacienteTutor(request):
                 html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombreTutor, 'link': link})
                 send_mail(subject, None, settings.EMAIL_HOST_USER, [correoTutor], html_message=html_message)
                 
-                log = Log(username = correoTutor, accion = 'Registro de Paciente y Tutor')
+                log = Log(username = correoTutor, texto = 'Registro de Paciente y Tutor')
                 log.save()
                 
                 messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
@@ -434,7 +482,7 @@ def crearPreguntas(request):
             formulario.save()
             messages.success(request, "Pregunta Creada Correctamente")
             
-            log = Log(username = request.user.email, accion = 'Creación de Pregunta')
+            log = Log(username = request.user.email, texto = 'Creación de Pregunta')
             log.save()
             
             return redirect(to="preguntas")
@@ -455,7 +503,7 @@ def modificarPreguntas(request,id):
         if formulario.is_valid():
             formulario.save()
             
-            log = Log(username = request.user.email, accion = 'Modificación de Pregunta')
+            log = Log(username = request.user.email, texto = 'Modificación de Pregunta')
             log.save()
             
             messages.success(request, "Modificado Correctamente")
@@ -469,7 +517,7 @@ def eliminarPreguntas(request, id):
     Preguntas = PreguntaFormulario.objects.get(id=id)
     Preguntas.delete()
     
-    log = Log(username = request.user.email, accion = 'Eliminación de Pregunta')
+    log = Log(username = request.user.email, texto = 'Eliminación de Pregunta')
     log.save()
     
     messages.success(request, "Eliminado Correctamente")
@@ -484,7 +532,7 @@ def sesionAsistida(request, id):
     reserva.estado = 'Asistida'
     reserva.save()
     
-    log = Log(username = request.user.email, accion = 'Sesión Asistida')
+    log = Log(username = request.user.email, texto = 'Sesión Asistida')
     log.save()
     
     messages.success(request, "Guardada Correctamente")
@@ -497,7 +545,7 @@ def sesionNoAsistida(request, id):
     reserva.estado = 'No Asistid'
     reserva.save()
     
-    log = Log(username = request.user.email, accion = 'Sesión No Asistida')
+    log = Log(username = request.user.email, texto = 'Sesión No Asistida')
     log.save()
     
     messages.success(request, "Guardada Correctamente")
@@ -598,7 +646,7 @@ def nuevaContrasenia(request, id, token):
                 user.set_password(password)
                 user.save()
                 
-                log = Log(username = user.email, accion = 'Asignación de Contraseña')
+                log = Log(username = user.email, texto = 'Asignación de Contraseña')
                 log.save()
                 
                 messages.success(request, 'Tu contraseña ha sido establecida con éxito.')
@@ -624,7 +672,7 @@ def editarPacienteTutor(request, id):
             formPac.save()
             formTut.save()
             
-            log = Log(username = tutor.email, accion = 'Edición de Paciente y Tutor')
+            log = Log(username = tutor.email, texto = 'Edición de Paciente y Tutor')
             log.save()
             
             messages.success(request, 'Datos actualizados correctamente.')
@@ -659,7 +707,7 @@ def editarFono(request, id):
         if form.is_valid():
             form.save()
             
-            log = Log(username = fono.email, accion = 'Edición de Fonoaudiologo')
+            log = Log(username = fono.email, texto = 'Edición de Fonoaudiologo')
             log.save()
             
             messages.success(request, 'Fonoaudiologo actualizado correctamente.')
@@ -676,7 +724,7 @@ def eliminar_fono(request, id):
     usuario.delete()
     fono.delete()
     
-    log = Log(username = fono.email, accion = 'Eliminación de Fonoaudiologo')
+    log = Log(username = fono.email, texto = 'Eliminación de Fonoaudiologo')
     log.save()
     
     messages.success(request, 'Fonoaudiologo eliminado correctamente.')
@@ -841,15 +889,15 @@ def exportar_reservas_pdf(request):
     if fecha_inicio and fecha_fin:
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-        reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+        reservas = ReservaHora.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).order_by('fecha', 'hora')
     else:
-        reservas = ReservaHora.objects.all()
+        reservas = ReservaHora.objects.all().order_by('fecha', 'hora')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="reporte_reservas.pdf"'
 
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter), title="Reporte de Reservas")
     elements = []
 
     styles = getSampleStyleSheet()
@@ -858,7 +906,7 @@ def exportar_reservas_pdf(request):
     elements.append(Paragraph("Reporte de Reservas", title_style))
 
     subtitle_style = styles['Normal']
-    elements.append(Paragraph(f"Desde: {fecha_inicio} Hasta: {fecha_fin}", subtitle_style))
+    elements.append(Paragraph(f"Desde: {fecha_inicio.strftime('%d-%m-%Y')} Hasta: {fecha_fin.strftime('%d-%m-%Y')}", subtitle_style))
 
     data = [["Fonoaudiologo", "Nombre Paciente", "RUT Paciente", "Teléfono Paciente", "Email Paciente", "Fecha", "Hora"]]
 
@@ -869,8 +917,8 @@ def exportar_reservas_pdf(request):
             reserva.rutPaciente,
             reserva.telefonoPaciente,
             reserva.emailPaciente,
-            reserva.fecha.strftime('%Y-%m-%d'),
-            reserva.hora.strftime('%H:%M:%S'),
+            reserva.fecha.strftime('%d-%m-%Y'),
+            reserva.hora.strftime('%H:%M'),
         ])
 
     table = Table(data)
@@ -886,20 +934,15 @@ def exportar_reservas_pdf(request):
     ]))
     elements.append(table)
 
-    doc.build(elements, onFirstPage=_add_page_number, onLaterPages=_add_page_number)
-    doc.pagesize = landscape(letter)
+    doc.build(elements, onFirstPage=lambda canvas, doc: _add_page_number(canvas, doc, "Reporte de Reservas"), 
+              onLaterPages=lambda canvas, doc: _add_page_number(canvas, doc, "Reporte de Reservas"))
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
 
     return response
 
-def _add_page_number(canvas, doc):
+def _add_page_number(canvas, doc, title):
     page_num = canvas.getPageNumber()
-    text = "Page %s" % page_num
+    text = f"{title} - Página {page_num}"
     canvas.drawRightString(200*mm, 20*mm, text)
-
-# Also set the title of the PDF
-buffer = BytesIO()
-doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
-canvas = canvas.Canvas(buffer, pagesize=landscape(letter))

@@ -114,3 +114,21 @@ class SesionForm(forms.ModelForm):
         }
 
 
+class OIRSMensajeForm(forms.ModelForm):
+    class Meta:
+        model = OIRS
+        fields = ['tipo_mensaje', 'nombre', 'email', 'telefono', 'mensaje']
+        widgets = {
+            'tipo_mensaje': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo de Mensaje'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su nombre'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su email'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su número de celular'}),
+            'mensaje': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Ingrese su mensaje'}),
+            
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(OIRSMensajeForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', 'Enviar'))

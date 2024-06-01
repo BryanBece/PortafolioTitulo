@@ -166,3 +166,23 @@ class RespuestaFormulario(models.Model):
     
     def __str__(self):
         return self.respuesta
+    
+#OIRS
+class OIRS(models.Model):
+    TIPO_MENSAJE_CHOICES = [
+        ('informacion', 'Información'),
+        ('reclamo', 'Reclamo'),
+        ('sugerencia', 'Sugerencia'),
+    ]
+
+    id = models.AutoField(primary_key=True)
+    tipo_mensaje = models.CharField(max_length=20, choices=TIPO_MENSAJE_CHOICES)
+    nombre = models.CharField(max_length=100)
+    email = models.EmailField()
+    telefono = models.CharField(max_length=9, blank=True)
+    mensaje = models.TextField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=10, default='Pendiente')
+
+    def __str__(self):
+        return f'{self.get_tipo_mensaje_display()} - {self.nombre}'
