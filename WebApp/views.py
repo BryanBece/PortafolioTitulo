@@ -84,9 +84,11 @@ def equipo(request):
 def nosotros(request):
     return render(request, 'nosotros.html')
 
-# Vista OIRS
 def oirs(request):
-    if request.method == 'POST':
+    if request.user.is_authenticated and request.user.tipoUsuario.nombre_tipo_usuario == 'Gerencia':
+        oirs_data = OIRS.objects.all()
+        return render(request, 'oirs/oirs.html', {'oirs_data': oirs_data})
+    elif request.method == 'POST':
         form = OIRSMensajeForm(request.POST)
         if form.is_valid():
             form.save()
@@ -946,3 +948,38 @@ def _add_page_number(canvas, doc, title):
     page_num = canvas.getPageNumber()
     text = f"{title} - Página {page_num}"
     canvas.drawRightString(200*mm, 20*mm, text)
+    
+    
+#Solicitud OIRS
+def modificarOirs(request, solicitud_id):
+    solicitud = get_object_or_404(OIRS, id=solicitud_id)
+    if request.method == 'POST':
+        form = OIRSRespuestaForm(request.POST, instance=solicitud)
+        if form.is_valid():
+            solicitud = form.save(commit=False)
+            solicitud.estado = 'Respondido'
+            solicitud.fecha_respuesta = timezone.now()
+            solicitud.save()
+
+            # Enviar correo de respuesta
+            respuesta = form.cleaned_data['respuesta']
+            subject = 'Respuesta a su solicitud OIRS - COFAM'
+            from_email = settings.EMAIL_HOST_USER
+            recipient_list = [solicitud.email]
+            html_message = render_to_string('oirs/respuestaCorreo.html', {
+                'solicitud': solicitud,
+                'respuesta': respuesta
+            })
+            
+            log = Log(username = solicitud.email, texto = 'Respuesta a Solicitud OIRS - Nro. ' + str(solicitud.id))
+
+            try:
+                send_mail(subject, '', from_email, recipient_list, html_message=html_message)
+                messages.success(request, 'Respuesta enviada correctamente y correo electrónico enviado.')
+            except Exception as e:
+                messages.error(request, 'Respuesta enviada, pero hubo un error al enviar el correo electrónico.')
+
+            return redirect('oirs')
+    else:
+        form = OIRSRespuestaForm(instance=solicitud)
+    return render(request, 'oirs/modificarOirs.html', {'solicitud': solicitud, 'form': form})

@@ -183,6 +183,8 @@ class OIRS(models.Model):
     mensaje = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=10, default='Pendiente')
+    respuesta = models.TextField(blank=True)
+    fecha_respuesta = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.get_tipo_mensaje_display()} - {self.nombre}'

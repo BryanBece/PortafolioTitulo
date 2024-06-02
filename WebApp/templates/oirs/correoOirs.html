@@ -38,6 +38,18 @@
         strong {
             color: #007bff;
         }
+        .card-footer {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+        .card-footer p {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +62,9 @@
             <p class="card-text"><strong>Nombre:</strong> {{ nombre }}</p>
             <p class="card-text"><strong>Email:</strong> {{ email }}</p>
             <p class="card-text"><strong>Mensaje:</strong> {{ mensaje }}</p>
+        </div>
+        <div class="card-footer">
+            <p>Dirijase a la sección OIRS para ver con detalle.</p>
         </div>
     </div>
 </body>

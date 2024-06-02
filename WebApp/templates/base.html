@@ -67,6 +67,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'listaFonos' %}"><i class="fas fa-user"></i> Fonoaudiologos</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'oirs' %}"><i class="fas fa-comments"></i> OIRS</a>
+          </li>
           {% endif %}
           {% if user.tipoUsuario.nombre_tipo_usuario == "Gerencia" or user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
           <li class="nav-item">

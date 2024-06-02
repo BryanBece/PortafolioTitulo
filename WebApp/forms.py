@@ -132,3 +132,9 @@ class OIRSMensajeForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Enviar'))
+        
+        
+class OIRSRespuestaForm(forms.ModelForm):
+    class Meta:
+        model = OIRS
+        fields = ['respuesta']

@@ -5,6 +5,7 @@
 {% block title %}OIRS{% endblock %}
 
 {% block content %}
+{% if not user.is_authenticated %}
 <div class="container mt-5 d-flex justify-content-center">
     <div class="card" style="width: 50rem;">
         <div class="card-body">
@@ -16,6 +17,63 @@
         </div>
     </div>
 </div>
+{% elif user.is_authenticated and user.tipoUsuario.nombre_tipo_usuario == "Gerencia" %}
+<div class="container mt-5">
+    <h2 class="card-title text-center">Oficina de Información, Reclamos y Sugerencias</h2>
+    <table id="oirsTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Nro Ticket</th>
+                <th>Tipo de Mensaje</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Mensaje</th>
+                <th>Fecha de Creación</th>
+                <th>Fecha de Respuesta</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oirs_item in oirs_data %}
+            <tr>
+                <td>{{ oirs_item.id }}</td>
+                <td>{{ oirs_item.get_tipo_mensaje_display }}</td>
+                <td>{{ oirs_item.nombre }}</td>
+                <td>{{ oirs_item.email }}</td>
+                <td>{{ oirs_item.telefono }}</td>
+                <td>{{ oirs_item.mensaje }}</td>
+                <td>{{ oirs_item.fecha_creacion|date:"d-m-Y H:i" }}</td>
+                <td>{% if oirs_item.fecha_respuesta %}{{ oirs_item.fecha_respuesta|date:"d-m-Y H:i" }}{% else %}N/A{% endif %}</td>
+                <td>
+                    {% if oirs_item.estado == 'Pendiente' %}
+                        <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-danger">Pendiente</a>
+                    {% elif oirs_item.estado == 'Respondido' %}
+                        <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-success">Respondido</a>
+                    {% else %}
+                        {{ oirs_item.estado }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#oirsTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
+            },
+            order: [[0, 'desc']] // Ordenar por el ID de forma descendente
+        });
+    });
+</script>
+
+{% endif %}
 
 <style>
     .card {
@@ -29,6 +87,10 @@
 
     .card-body {
         padding: 20px;
+    }
+
+    #oirsTable_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background-color: transparent !important;
     }
 </style>
 {% endblock %}
