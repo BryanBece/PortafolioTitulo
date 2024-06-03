@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2>Datos Personales</h2>
             <a href="{% url 'editar_paciente_tutor' paciente.id %}" class="btn btn-warning">
@@ -37,9 +37,53 @@
             </div>
         </div>
     </div>
-    <div class="card mt-3">
+    <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Formularios</h2>
+            <h2>Antecedentes Médicos</h2>
+            <a href="{% url 'editar_paciente_tutor' paciente.id %}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    {% if paciente.antecedentesMedicos %}
+                    <p class="card-text">{{ paciente.antecedentesMedicos }}</p>
+                    {% else %}
+                    <p class="card-text">No hay antecedentes médicos ingresados.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Notas</h2>
+            <a href="{% url 'notasPaciente' paciente.id %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nueva Nota</a>
+        </div>
+        <div class="card-body">
+            {% if notas %}
+            <ul class="list-group">
+                {% for nota in notas %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ nota.fecha }}
+                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#notaModal" data-nota="{{ nota.nota }}">
+                        <i class="fas fa-eye"></i> Mostrar Nota
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="card-text">No hay notas ingresadas.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Protocolos de Comunicación</h2>
             <a href="#" class="btn btn-primary">
                 <i class="fas fa-file-alt me-2"></i>Ingresar Formulario
             </a>
@@ -48,7 +92,8 @@
 
         </div>
     </div>
-    <div class="card mt-3">
+    
+    <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Sesiones Fonoaudiológicas</h2>
             <a href="{% url 'sesion' paciente.id %}" class="btn btn-primary">
@@ -68,7 +113,7 @@
                     <tr>
                         <td>{{ sesion.fecha }}</td>
                         <td>
-                            <a href="{% url 'detalleSesion' sesion.id %}" class="btn btn-info">Ver Detalle</a>
+                            <a href="{% url 'detalleSesion' sesion.id %}" class="btn btn-info"><i class="fas fa-eye"></i> Ver Detalle</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -77,4 +122,34 @@
         </div>
     </div>
 </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="notaModal" tabindex="-1" aria-labelledby="notaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="notaModalLabel">Nota</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="notaModalBody">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var notaModal = document.getElementById('notaModal');
+    notaModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var nota = button.getAttribute('data-nota');
+        var modalBody = notaModal.querySelector('.modal-body');
+        modalBody.textContent = nota;
+    });
+</script>
+
 {% endblock %}

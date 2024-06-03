@@ -144,7 +144,7 @@
     <!-- PERFIL TUTOR -->
     {% elif user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
     <h2>Tus siguientes horas agendadas:</h2>
-    {% if reservas %}
+    {% if reservas_futuras %}
     <table id="reservasTutorTable" class="table table-striped">
         <thead>
             <tr>
@@ -155,7 +155,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for reserva in reservas %}
+            {% for reserva in reservas_futuras %}
             {% if reserva.emailPaciente == user.email %}
             <tr>
                 <td>{{ reserva.fecha }}</td>

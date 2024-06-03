@@ -6,17 +6,65 @@
 {% block content %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/i18n/jquery.ui.datepicker-es.min.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<!-- Incluir el idioma español para DatePicker -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/i18n/jquery-ui-i18n.min.js"></script>
+
 <style>
     #calendario {
         width: 300px;
         margin: 50px auto;
     }
+    button {
+        width: 50%;
+        height: 40px;
+        border-radius: 40px;
+        background-color: #e7549c;
+        border: none;
+        margin-bottom: 20px;
+        outline: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        color: #fff;
+    }
+    button:hover {
+        background-color: #b8075c;
+        color: #fff;
+    }
 </style>
-<script>
 
+<script>
+$(function() {
+    $.datepicker.regional['es'] = {
+        closeText: 'Cerrar',
+        prevText: '< Ant',
+        nextText: 'Sig >',
+        currentText: 'Hoy',
+        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+        'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+        weekHeader: 'Sm',
+        dateFormat: 'dd-mm-yy',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''
+    };
+    $.datepicker.setDefaults($.datepicker.regional['es']);
+
+    $("#calendario").datepicker({
+        beforeShowDay: function(date) {
+            var day = date.getDay();
+            return [(day != 0 && day != 6), '']; // Habilitar solo lunes a viernes
+        },
+        minDate: 0 // Deshabilitar fechas pasadas
+    });
+});
 </script>
 
 <div class="container">
@@ -44,28 +92,5 @@
             </div>
         </div>
     </form>
-
 </div>
-<style>
-    button {
-        width: 50%;
-        height: 40px;
-        border-radius: 40px;
-        background-color: #e7549c;
-        border: none;
-        margin-bottom: 20px;
-        outline: none;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: all 0.4s ease;
-        color: #fff;
-    }
-
-    button:hover {
-        background-color: #b8075c;
-        color: #fff;
-    }
-</style>
-
 {% endblock %}

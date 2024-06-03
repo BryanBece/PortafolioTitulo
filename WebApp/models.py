@@ -77,10 +77,21 @@ class Paciente(models.Model):
     telefono = models.CharField(max_length=9)
     direccion = models.CharField(max_length=100)
     comuna = models.ForeignKey(Comuna, on_delete=models.CASCADE)
+    antecedentesMedicos = models.TextField(null=True, blank=True)
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
     
     def __str__(self):
         return f'{self.nombre} {self.apellido}'
+    
+#Notas Paciente
+class NotaPaciente(models.Model):
+    id = models.AutoField(primary_key=True)
+    fecha = models.DateField(default=timezone.now)
+    nota = models.TextField()
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.nota
     
 
 #Reserva Hora

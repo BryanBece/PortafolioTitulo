@@ -44,14 +44,15 @@
                 <td>{{ oirs_item.telefono }}</td>
                 <td>{{ oirs_item.mensaje }}</td>
                 <td>{{ oirs_item.fecha_creacion|date:"d-m-Y H:i" }}</td>
-                <td>{% if oirs_item.fecha_respuesta %}{{ oirs_item.fecha_respuesta|date:"d-m-Y H:i" }}{% else %}N/A{% endif %}</td>
+                <td>{% if oirs_item.fecha_respuesta %}{{ oirs_item.fecha_respuesta|date:"d-m-Y H:i" }}{% else %}N/A{% endif %}
+                </td>
                 <td>
                     {% if oirs_item.estado == 'Pendiente' %}
-                        <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-danger">Pendiente</a>
+                    <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-danger">Pendiente</a>
                     {% elif oirs_item.estado == 'Respondido' %}
-                        <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-success">Respondido</a>
+                    <a href="{% url 'modificarOirs' solicitud_id=oirs_item.id %}" class="btn btn-success">Respondido</a>
                     {% else %}
-                        {{ oirs_item.estado }}
+                    {{ oirs_item.estado }}
                     {% endif %}
                 </td>
             </tr>
@@ -63,12 +64,14 @@
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#oirsTable').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
             },
-            order: [[0, 'desc']] // Ordenar por el ID de forma descendente
+            order: [
+                [0, 'desc']
+            ] // Ordenar por el ID de forma descendente
         });
     });
 </script>
@@ -89,8 +92,18 @@
         padding: 20px;
     }
 
-    #oirsTable_wrapper .dataTables_paginate .paginate_button.current:hover {
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        color: inherit !important;
+        border: none !important;
         background-color: transparent !important;
+        background: none !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        color: white !important;
+        border: 1px solid #007bff;
+        background-color: #007bff !important;
     }
 </style>
 {% endblock %}

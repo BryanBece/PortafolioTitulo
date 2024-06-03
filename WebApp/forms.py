@@ -42,6 +42,7 @@ class RegistroPacienteForm(forms.ModelForm):
             'genero': 'Género',
             'telefono': 'Teléfono',
             'fechaNacimiento': 'Fecha de Nacimiento',
+            'antecedentesMedicos': 'Antecedentes Médicos',
         }
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
@@ -133,8 +134,21 @@ class OIRSMensajeForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Enviar'))
         
-        
+#Formulario de Respuesta OIRS
 class OIRSRespuestaForm(forms.ModelForm):
     class Meta:
         model = OIRS
         fields = ['respuesta']
+        
+#Notas Paciente
+class NotasPacienteForm(forms.ModelForm):
+    class Meta:
+        model = NotaPaciente
+        fields = '__all__'
+        exclude = ['id', 'paciente', 'fecha']
+        labels = {
+            'nota': 'Nota',
+        }
+        widgets = {
+            'nota': forms.Textarea(attrs={'class': 'form-control'}),
+        }

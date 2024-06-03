@@ -62,6 +62,7 @@ urlpatterns = [
     path('sesion/<int:id>', sesionFono, name='sesion'),
     path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),
     path('estadoOIRS/<int:solicitud_id>/', modificarOirs, name='modificarOirs'),
+    path('notasPaciente/<int:id>/', notasPaciente, name='notasPaciente'),
     
     #Reportes
     path('reportes/', reportePrincipal, name='reportes'),

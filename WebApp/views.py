@@ -189,17 +189,24 @@ def reservaHora(request):
     hora = request.GET.get('hora')
     doctor = Fonoaudiologo.objects.get(pk=doctor_id)
     
-    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
-        tutor = Tutor.objects.get(email=request.user.email)
-        paciente = Paciente.objects.get(tutor=tutor)
-        data = {
-            'form': ReservaHoraForm(initial={'nombrePaciente': paciente.nombre, 'apellidoPaciente': paciente.apellido, 'rutPaciente': paciente.rut, 'telefonoPaciente': paciente.telefono, 'emailPaciente': paciente.tutor.email}),
-            'fecha_reserva': fecha_reserva,
-            'hora': hora,
-            'doctor': doctor
-        }
-        
-    else:   
+    if request.method == 'GET' and request.user.is_authenticated:
+        if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+            tutor = Tutor.objects.get(email=request.user.email)
+            paciente = Paciente.objects.get(tutor=tutor)
+            data = {
+                'form': ReservaHoraForm(initial={'nombrePaciente': paciente.nombre, 'apellidoPaciente': paciente.apellido, 'rutPaciente': paciente.rut, 'telefonoPaciente': paciente.telefono, 'emailPaciente': paciente.tutor.email}),
+                'fecha_reserva': fecha_reserva,
+                'hora': hora,
+                'doctor': doctor
+            }
+        else:   
+            data = {
+                'form': ReservaHoraForm(),
+                'fecha_reserva': fecha_reserva,
+                'hora': hora,
+                'doctor': doctor
+            }
+    else:
         data = {
             'form': ReservaHoraForm(),
             'fecha_reserva': fecha_reserva,
@@ -245,6 +252,7 @@ def reservaHora(request):
             data["form"] = formulario
     
     return render(request, 'reservaHoras/reservaHora.html', data)
+
 
 #Cancelar Reserva
 @login_required
@@ -553,17 +561,21 @@ def sesionNoAsistida(request, id):
     messages.success(request, "Guardada Correctamente")
     return redirect(to="perfil")
 
-#Ficha Clinica
+
+# Ficha Clinica
 @login_required
 def fichaClinica(request, id):
     paciente = Paciente.objects.get(id=id)
     sesionFono = SesionTerapeutica.objects.filter(paciente=paciente).order_by('-id')
+    notas = NotaPaciente.objects.filter(paciente=paciente).order_by('-fecha')
     data = {
         'paciente': paciente,
         'sesiones': sesionFono,
+        'notas': notas,
     }
     
     return render(request, 'atencion/fichaClinica.html', data)
+
 
 #Buscar Paciente
 @login_required
@@ -661,7 +673,7 @@ def nuevaContrasenia(request, id, token):
     return render(request, 'registration/nuevaContrasenia.html')
 
 
-#Editar Paciente
+# Editar Paciente y Tutor
 @login_required
 def editarPacienteTutor(request, id):
     paciente = get_object_or_404(Paciente, id=id)
@@ -671,16 +683,18 @@ def editarPacienteTutor(request, id):
         formPac = RegistroPacienteForm(request.POST, instance=paciente)
         formTut = RegistroTutorForm(request.POST, instance=tutor)
         if formPac.is_valid() and formTut.is_valid():
+            
             formPac.save()
             formTut.save()
             
-            log = Log(username = tutor.email, texto = 'Edición de Paciente y Tutor')
+            log = Log(username=tutor.email, texto='Edición de Paciente y Tutor')
             log.save()
             
             messages.success(request, 'Datos actualizados correctamente.')
             return redirect('fichaClinica', id=paciente.id)
+        else:
+            messages.error(request, 'Error al actualizar los datos.')
     else:
-        messages.error(request, 'Error al actualizar los datos.')
         formPac = RegistroPacienteForm(instance=paciente)
         formTut = RegistroTutorForm(instance=tutor)
 
@@ -690,6 +704,7 @@ def editarPacienteTutor(request, id):
         'regiones': Region.objects.all(),
         'paciente': paciente
     })
+
 
 #Listar Fonos
 @login_required
@@ -983,3 +998,28 @@ def modificarOirs(request, solicitud_id):
     else:
         form = OIRSRespuestaForm(instance=solicitud)
     return render(request, 'oirs/modificarOirs.html', {'solicitud': solicitud, 'form': form})
+
+
+# Notas Paciente
+@login_required
+def notasPaciente(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+
+    if request.method == 'POST':
+        form = NotasPacienteForm(request.POST)
+        if form.is_valid():
+            nota = form.save(commit=False)
+            nota.paciente = paciente
+            nota.save()
+            messages.success(request, 'Nota guardada correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
+        else:
+            messages.error(request, 'Error al guardar la nota.')
+    else:
+        form = NotasPacienteForm()
+
+    data = {
+        'paciente': paciente,
+        'form': form,
+    }
+    return render(request, 'atencion/notasPaciente.html', data)
