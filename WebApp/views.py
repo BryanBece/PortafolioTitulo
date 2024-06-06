@@ -135,7 +135,7 @@ def calendario(request):
     }
     return render(request, 'reservaHoras/calendario.html', context)
 
-#Horas Disponibles
+# Horas Disponibles
 def ver_horas_disponibles(request):
     fecha_reserva_str = request.GET.get('fecha_reserva')
     doctor_id = request.GET.get('doctor_id')
@@ -165,6 +165,10 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
         hora_fin = horas_trabajo.first().hora_fin
     else:
         return []
+    
+    # Obtener la hora actual
+    ahora = datetime.now().time()
+    
     fecha_inicio = datetime.combine(fecha_reserva, time())
     hora_inicio_dt = fecha_inicio.replace(hour=hora_inicio.hour, minute=hora_inicio.minute)
     hora_fin_dt = fecha_inicio.replace(hour=hora_fin.hour, minute=hora_fin.minute)
@@ -172,7 +176,9 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
     todas_las_horas = []
     hora_actual = hora_inicio_dt
     while hora_actual < hora_fin_dt:
-        todas_las_horas.append(hora_actual.strftime('%H:%M'))
+        # Solo agregar las horas mayores a la hora actual si es el mismo día
+        if fecha_reserva.date() > datetime.now().date() or (fecha_reserva.date() == datetime.now().date() and hora_actual.time() > ahora):
+            todas_las_horas.append(hora_actual.strftime('%H:%M'))
         hora_actual += timedelta(hours=1)
 
     citas = ReservaHora.objects.filter(fonoaudiologo=doctor, fecha=fecha_reserva)
