@@ -1029,3 +1029,56 @@ def notasPaciente(request, id):
         'form': form,
     }
     return render(request, 'atencion/notasPaciente.html', data)
+
+
+#Graficos
+@login_required
+def graficos(request):
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Gerencia':
+        # Datos para el gráfico de género
+        generos = Genero.objects.all()
+        datos_genero = {
+            genero.genero: Paciente.objects.filter(genero=genero).count() for genero in generos
+        }
+
+        # Datos para el gráfico de rango etario
+        pacientes = Paciente.objects.all()
+        hoy = date.today()
+        edades = [(hoy.year - paciente.fechaNacimiento.year) - ((hoy.month, hoy.day) < (paciente.fechaNacimiento.month, paciente.fechaNacimiento.day)) for paciente in pacientes]
+        
+        rango_etario = {
+            '0-4': 0, '5-9': 0, '10-14': 0, '15-19': 0, '20-24': 0,
+            '25-29': 0, '30-34': 0, '35-39': 0, '40-44': 0, '45-49': 0,
+            '50-54': 0, '55-59': 0, '60-64': 0, '65-69': 0, '70-74': 0,
+            '75-79': 0, '80-84': 0, '85-89': 0, '90-94': 0, '95-99': 0, '100+': 0
+        }
+
+        for edad in edades:
+            if edad >= 100:
+                rango_etario['100+'] += 1
+            else:
+                key = f"{(edad // 5) * 5}-{(edad // 5) * 5 + 4}"
+                rango_etario[key] += 1
+
+        # Datos para el gráfico de pacientes por región
+        regiones = Region.objects.all()
+        datos_region = {
+            region.region: Paciente.objects.filter(comuna__region=region).count() for region in regiones
+        }
+
+        # Datos para el gráfico de reservas "Asistida" por fonoaudiólogo
+        fonoaudiologos = Fonoaudiologo.objects.all()
+        datos_reservas_asistidas = {
+            f"{fonoaudiologo.nombre} {fonoaudiologo.apellido}": ReservaHora.objects.filter(fonoaudiologo=fonoaudiologo, estado='Asistida').count() for fonoaudiologo in fonoaudiologos
+        }
+
+        context = {
+            'datos_genero': datos_genero,
+            'rango_etario': rango_etario,
+            'datos_region': datos_region,
+            'datos_reservas_asistidas': datos_reservas_asistidas
+        }
+        return render(request, 'reportes/graficos.html', context)
+    else:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('perfil')

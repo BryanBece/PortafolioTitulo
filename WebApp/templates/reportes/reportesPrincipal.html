@@ -10,23 +10,18 @@
     <img src="{% static 'images/sales-reporting.png' %}" alt="Reporte de Ventas" class="img-fluid mb-4 report-image">
     <div class="d-flex justify-content-center flex-wrap">
         <div class="m-2">
-            <a href="{% url 'perfil' %}" class="btn btn-primary">
-                <i class="fas fa-user"></i> Pacientes
-            </a>
-        </div>
-        <div class="m-2">
-            <a href="{% url 'perfil' %}" class="btn btn-primary">
-                <i class="fas fa-user-md"></i> Fonoaudiólogos
+            <a href="{% url 'graficos' %}" class="btn btn-primary">
+                <i class="fa fa-chart-bar"></i> Gráficos
             </a>
         </div>
         <div class="m-2">
             <a href="{% url 'reporteReservas' %}" class="btn btn-primary">
-                <i class="fas fa-calendar-alt"></i> Reservas
+                <i class="fa fa-calendar-alt"></i> Reservas
             </a>
         </div>
         <div class="m-2">
             <a href="{% url 'exportar_datos' %}" class="btn btn-primary">
-                <i class="fas fa-database"></i> Base De Datos
+                <i class="fa fa-database"></i> Base De Datos
             </a>
         </div>        
     </div>
@@ -44,6 +39,5 @@
         height: auto; 
         background-color: transparent;
     }
-    
 </style>
 {% endblock %}

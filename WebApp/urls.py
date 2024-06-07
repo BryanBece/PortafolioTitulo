@@ -70,6 +70,6 @@ urlpatterns = [
     path('reporteReservas/', reporteReservas, name='reporteReservas'),
     path('filtrar-reservas/', filtrar_reservas, name='filtrar_reservas'),
     path('exportar-reservas-pdf/', exportar_reservas_pdf, name='exportar_reservas_pdf'),
-    
+    path('graficos/', graficos, name='graficos'),
 
 ]
