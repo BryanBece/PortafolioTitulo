@@ -165,7 +165,7 @@ class PreguntaFormulario(models.Model):
     formulario = models.ForeignKey(Formulario, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.textoPregunta
+        return f'{self.textoPregunta} - {self.formulario.nombre}'
     
 #Respuesta
 class RespuestaFormulario(models.Model):

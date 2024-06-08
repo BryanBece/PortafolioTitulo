@@ -469,7 +469,7 @@ def registroPacienteTutor(request):
                 log.save()
                 
                 messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
-                return redirect('ficha_clinica', id=pac.id)
+                return redirect('fichaClinica', id=pac.id)
             
         else:
             data["formPac"] = formularioPaciente
@@ -1082,3 +1082,115 @@ def graficos(request):
     else:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('perfil')
+    
+    
+@login_required
+def formComunicativo(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=1)
+    
+    # Obtener el paciente
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=1)
+    
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            if respuesta_value:
+                respuesta, created = RespuestaFormulario.objects.get_or_create(
+                    pregunta=pregunta,
+                    paciente=paciente,
+                    defaults={
+                        'respuesta': (respuesta_value == 'si'),
+                        'fechaRespuesta': timezone.now()
+                    }
+                )
+                respuesta.respuesta = (respuesta_value == 'si')
+                respuesta.fechaRespuesta = timezone.now()
+                respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas:
+        return render(request, 'formularios/formularioUno.html', {'respuestas': respuestas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioUno.html', {'preguntas': preguntas, 'paciente': paciente})
+
+@login_required
+def formSocial(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=2)
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=2)
+    
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            if respuesta_value:
+                if respuesta_value == 'Otro':
+                    respuesta_value = request.POST.get(f'otro_{pregunta.id}', '')
+
+                respuesta, created = RespuestaFormulario.objects.get_or_create(
+                    pregunta=pregunta,
+                    paciente=paciente,
+                    defaults={
+                        'respuesta': respuesta_value,
+                        'fechaRespuesta': timezone.now()
+                    }
+                )
+                respuesta.respuesta = respuesta_value
+                respuesta.fechaRespuesta = timezone.now()
+                respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas.exists():
+        return render(request, 'formularios/formularioDos.html', {'respuestas': respuestas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioDos.html', {'preguntas': preguntas, 'paciente': paciente})
+
+from django.db import IntegrityError
+
+@login_required
+def formLenguaje(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=3)
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=3)
+    
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            observacion_value = request.POST.get(f'observacion_{pregunta.id}')
+            if respuesta_value:
+                respuesta_text = respuesta_value
+                if observacion_value:
+                    respuesta_text += f" - Obs: {observacion_value}"
+                
+                try:
+                    respuesta = RespuestaFormulario.objects.create(
+                        pregunta=pregunta,
+                        paciente=paciente,
+                        respuesta=respuesta_text,
+                        fechaRespuesta=timezone.now(),
+                    )
+                    respuesta.save()
+                except IntegrityError:
+                    # Si ya existe una respuesta, la actualizamos
+                    respuesta = RespuestaFormulario.objects.get(pregunta=pregunta, paciente=paciente)
+                    respuesta.respuesta = respuesta_text
+                    respuesta.fechaRespuesta = timezone.now()
+                    respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas.exists():
+        return render(request, 'formularios/formularioTres.html', {'respuestas': respuestas, 'preguntas': preguntas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioTres.html', {'preguntas': preguntas, 'paciente': paciente})
+
+    
+

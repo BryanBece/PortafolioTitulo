@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Formulario Social{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if respuestas %}
+            <div class="card shadow p-4 mb-4">
+                <div class="card-header text-center">
+                    <h2>Evaluación De La Participación Comunicativo-Social De La Persona Mayor</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Pregunta</th>
+                                <th>Respuesta</th>
+                                <th>Fecha de Respuesta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for respuesta in respuestas %}
+                            <tr>
+                                <td>{{ respuesta.pregunta.textoPregunta }}</td>
+                                <td>{{ respuesta.respuesta }}</td>
+                                <td>{{ respuesta.fechaRespuesta }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if paciente %}
+                    <div class="text-center mt-4">
+                        <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-primary">Volver</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow p-4 mb-4">
+                <div class="card-header text-center">
+                    <h2>Evaluación De La Participación Comunicativo-Social De La Persona Mayor</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="form-comunicativo">
+                        {% csrf_token %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Pregunta</th>
+                                    <th>Respuesta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pregunta in preguntas %}
+                                <tr>
+                                    <td>{{ pregunta.textoPregunta }}</td>
+                                    <td class="text-center">
+                                        {% if forloop.first %}
+                                        <!-- Primera pregunta con choices de parentesco -->
+                                        <select name="pregunta_{{ pregunta.id }}" class="form-select">
+                                            <option value="Padre/Madre">Padre/Madre</option>
+                                            <option value="Hijo/Hija">Hijo/Hija</option>
+                                            <option value="Hermano/Hermana">Hermano/Hermana</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2" style="display:none;" placeholder="Especifique">
+                                        {% elif forloop.counter == 2 %}
+                                        <!-- Segunda pregunta con choices de frecuencia -->
+                                        <select name="pregunta_{{ pregunta.id }}" class="form-select">
+                                            <option value="Esporádica">Esporádica</option>
+                                            <option value="Mensual">Mensual</option>
+                                            <option value="Semanal">Semanal</option>
+                                            <option value="Diaria">Diaria</option>
+                                        </select>
+                                        {% elif forloop.counter == 3 %}
+                                        <!-- Tercera pregunta con choices de duración -->
+                                        <select name="pregunta_{{ pregunta.id }}" class="form-select">
+                                            <option value="0-15 min">0-15 min</option>
+                                            <option value="15-30 min">15-30 min</option>
+                                            <option value="30-60 min">30-60 min</option>
+                                            <option value="+60 min">+60 min</option>
+                                        </select>
+                                        {% elif forloop.counter == 4 %}
+                                        <!-- Cuarta pregunta con choices de temas -->
+                                        <select name="pregunta_{{ pregunta.id }}" class="form-select">
+                                            <option value="Satisfacción de necesidades vitales">Satisfacción de necesidades vitales (función instrumental)</option>
+                                            <option value="Emociones o propósitos de vida">Emociones o propósitos de vida (función personal)</option>
+                                            <option value="Noticias diarias o información mundial">Noticias diarias o información mundial (función cognitiva)</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2" style="display:none;" placeholder="Especifique">
+                                        {% elif forloop.counter == 5 %}
+                                        <!-- Quinta pregunta con choices de satisfacción -->
+                                        <select name="pregunta_{{ pregunta.id }}" class="form-select">
+                                            <option value="Nada Satisfecho">Nada Satisfecho</option>
+                                            <option value="Poco Satisfecho">Poco Satisfecho</option>
+                                            <option value="Medianamente Satisfecho">Medianamente Satisfecho</option>
+                                            <option value="Satisfecho">Satisfecho</option>
+                                            <option value="Muy Satisfecho">Muy Satisfecho</option>
+                                        </select>
+                                        {% else %}
+                                        <input type="text" name="pregunta_{{ pregunta.id }}" class="form-control">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                            {% if paciente %}
+                            <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-secondary">Volver</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("select").forEach(function(select) {
+        select.addEventListener("change", function() {
+            var input = this.nextElementSibling;
+            if (this.value === "Otro") {
+                input.style.display = "block";
+            } else {
+                input.style.display = "none";
+                input.value = ""; // Clear the input if it's hidden
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

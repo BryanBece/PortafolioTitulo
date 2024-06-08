@@ -53,6 +53,9 @@ urlpatterns = [
     path('crearPreguntas/', crearPreguntas, name='crearPreguntas'),
     path('modificarPreguntas/<int:id>', modificarPreguntas, name='modificarPreguntas'),
     path('eliminarPreguntas/<int:id>', eliminarPreguntas, name='eliminarPreguntas'),
+    path('formComunicativo/<int:id>', formComunicativo, name='formComunicativo'),
+    path('formSocial/<int:id>', formSocial, name='formSocial'),
+    path('formLenguaje/<int:id>', formLenguaje, name='formLenguaje'),
     
     
     #Atencion

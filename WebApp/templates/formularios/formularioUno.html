@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Formulario Comunicativo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% if respuestas %}
+            <div class="card shadow p-4 mb-4">
+                <div class="card-header text-center">
+                    <h2>Evaluación De La Actividad Comunicativa De La Persona Mayor</h2>
+                </div>
+                {% if respuestas %}
+                    <div class="mt-4">
+                        <strong>
+                            {% with puntos_si=respuestas|length %}
+                            {% if puntos_si >= 19 %}
+                            <p>Puntaje total: {{ puntos_si }} puntos. <br> Actividad comunicativa normal.</p>
+                            {% else %}
+                            <p>Puntaje total: {{ puntos_si }} puntos.  <br>Requiere un estudio más exhaustivo del o los ítems deficientes // déficit de actividad comunicativa.</p>
+                            <p>*Puntaje modificado (considerando persona con analfabetismo): 17 puntos: Actividad comunicativa normal.*</p>
+                            {% endif %}
+                            {% endwith %}
+                        </strong>
+                    </div>
+                    {% endif %}
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Pregunta</th>
+                                <th>Respuesta</th>
+                                <th>Fecha de Respuesta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for respuesta in respuestas %}
+                            <tr>
+                                <td>{{ respuesta.pregunta.textoPregunta }}</td>
+                                {% if respuesta.respuesta == "True" %}
+                                <td>Sí</td>
+                                {% else %}
+                                <td>No</td>
+                                {% endif %}
+                                <td>{{ respuesta.fechaRespuesta }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if paciente %}
+                    <div class="text-center mt-4">
+                        <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-primary">Volver</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow p-4 mb-4">
+                <div class="card-header text-center">
+                    <h2>Evaluación De La Actividad Comunicativa De La Persona Mayor</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de respuestas -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>RESPONDA, MARCANDO SÍ O NO, LUEGO DE EJECUTAR LA ACTIVIDAD PRESENTADA.</th>
+                                    <th>SÍ (1 punto)</th>
+                                    <th>NO (s/ptje)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pregunta in preguntas %}
+                                <tr>
+                                    <td>{{ pregunta.textoPregunta }}</td>
+                                    <td class="text-center">
+                                        <input type="radio" name="pregunta_{{ pregunta.id }}" value="si">
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="radio" name="pregunta_{{ pregunta.id }}" value="no">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                            {% if paciente %}
+                                <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-primary">Volver</a>
+                            {% endif %}
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
