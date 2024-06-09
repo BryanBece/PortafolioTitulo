@@ -152,3 +152,12 @@ class NotasPacienteForm(forms.ModelForm):
         widgets = {
             'nota': forms.Textarea(attrs={'class': 'form-control'}),
         }
+        
+class MensajeForm(forms.ModelForm):
+    class Meta:
+        model = Mensaje
+        fields = ['texto']
+        labels = {
+            'texto': 'Mensaje',
+        }
+

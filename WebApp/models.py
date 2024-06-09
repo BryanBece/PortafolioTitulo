@@ -199,3 +199,15 @@ class OIRS(models.Model):
 
     def __str__(self):
         return f'{self.get_tipo_mensaje_display()} - {self.nombre}'
+    
+    
+class Mensaje(models.Model):
+    emisor = models.CharField(max_length=100)
+    receptor = models.CharField(max_length=100)
+    texto = models.TextField()
+    fechaEnvio = models.DateTimeField(default=timezone.now)
+    leido = models.BooleanField(default=False)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f'Mensaje de {self.emisor} a {self.receptor}'

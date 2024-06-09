@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Responder Mensaje{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Responder Mensaje</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Paciente:</strong> {{ mensaje.paciente }}</p>
+            <p><strong>Tutor:</strong> {{ mensaje.emisor }}</p>
+            <p><strong>Fonoaudiólogo:</strong> {{ mensaje.receptor }}</p>
+            
+            <hr>
+            <p><strong>Mensaje anterior:</strong></p>
+            <div class="mb-3">
+                {{ mensaje.texto }}
+            </div>
+            <hr>
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+                <a href="{% url 'buzonMensajes' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

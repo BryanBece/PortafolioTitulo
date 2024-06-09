@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Mensaje{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+      {% if user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
+      <h2>Conversación con {{ mensaje.receptor }}</h2>
+      {% else %}
+      <h2>Conversación con {{ mensaje.emisor }}</h2>
+      {% endif %}
+      <a href="{% url 'responderMensaje' mensaje.id %}" class="btn btn-primary">
+        <i class="fas fa-paper-plane"></i> Responder
+      </a>
+    </div>
+
+    <div class="card-body">
+      <div class="list-group">
+        {% for msg in mensajes %}
+        <div class="list-group-item {% if msg.emisor == user.nombre|add:" "|add:user.apellido %}text-end bg-light{% else %}text-start bg-secondary text-white{% endif %}">
+          <strong>{{ msg.emisor }}: </strong>{{ msg.texto }}
+        </div>
+        {% if msg.emisor == user.nombre|add:" "|add:user.apellido %}
+        <div class="text-end" style="margin-bottom: 10px; margin-right: 10px; margin-top: 5px;">
+          <span class="small-text">{{ msg.fechaEnvio }}</span>
+        </div>
+        {% else %}
+        <div class="text-start" style="margin-bottom: 10px; margin-left: 10px; margin-top: 5px;">
+          <span class="small-text">{{ msg.fechaEnvio }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card-footer">
+      <a href="{% url 'buzonMensajes' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<style>
+  .small-text {
+    font-size: 0.8em;
+  }
+</style>

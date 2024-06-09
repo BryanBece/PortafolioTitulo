@@ -73,3 +73,7 @@ class OIRSAdmin(admin.ModelAdmin):
     list_display = ('tipo_mensaje', 'nombre', 'email', 'telefono','estado', 'mensaje','fecha_creacion')
     list_filter = ('tipo_mensaje', 'fecha_creacion','estado')
     search_fields = ('nombre', 'email', 'mensaje', 'telefono','estado')
+    
+@admin.register(Mensaje)
+class MensajeAdmin(admin.ModelAdmin):
+    list_display = ('id','emisor', 'receptor', 'paciente','texto','fechaEnvio','leido')

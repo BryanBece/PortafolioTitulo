@@ -66,6 +66,10 @@ urlpatterns = [
     path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),
     path('estadoOIRS/<int:solicitud_id>/', modificarOirs, name='modificarOirs'),
     path('notasPaciente/<int:id>/', notasPaciente, name='notasPaciente'),
+    path('enviar/', views.enviarMensaje, name='enviarMensaje'),
+    path('buzon/', views.buzonMensajes, name='buzonMensajes'),
+    path('leer/<int:mensajeId>/', views.leerMensaje, name='leerMensaje'),
+    path('responder/<int:mensajeId>/', views.responderMensaje, name='responderMensaje'),
     
     #Reportes
     path('reportes/', reportePrincipal, name='reportes'),

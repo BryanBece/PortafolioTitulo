@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.db.models import Q
 
 from .forms import *
 from user.models import *
@@ -1194,3 +1195,103 @@ def formLenguaje(request, id):
 
     
 
+@login_required
+def enviarMensaje(request):
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+        fonoaudiologos = Fonoaudiologo.objects.all()
+        if request.method == "POST":
+            form = MensajeForm(request.POST)
+            if form.is_valid():
+                mensaje = form.save(commit=False)
+                user = request.user.email
+                tutor = Tutor.objects.get(email=user)
+                mensaje.paciente = Paciente.objects.get(tutor=tutor)
+                fonoaudiologo_id = request.POST.get('fonoaudiologo')
+                fonoaudiologo = Fonoaudiologo.objects.get(pk=fonoaudiologo_id)
+                mensaje.emisor = tutor
+                mensaje.receptor = fonoaudiologo
+                mensaje.save()
+                messages.success(request, 'Mensaje enviado correctamente.')
+                return redirect('buzonMensajes')
+        else:
+            form = MensajeForm()
+        return render(request, 'atencion/enviarMensaje.html', {'form': form, 'fonoaudiologos': fonoaudiologos})
+
+    
+
+@login_required
+def buzonMensajes(request):
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+        mensajes_emisor = Mensaje.objects.filter(emisor=request.user.nombre + ' ' + request.user.apellido)
+        mensajes_receptor = Mensaje.objects.filter(receptor=request.user.nombre + ' ' + request.user.apellido)
+        mensajes = mensajes_emisor | mensajes_receptor
+    elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
+        mensajes = Mensaje.objects.filter(receptor=request.user.nombre + ' ' + request.user.apellido)
+    
+    conversaciones = {}
+    for mensaje in mensajes:
+        destinatario = mensaje.receptor if mensaje.emisor == request.user.username else mensaje.emisor
+        if destinatario not in conversaciones or mensaje.fechaEnvio > conversaciones[destinatario].fechaEnvio:
+            conversaciones[destinatario] = mensaje
+    
+    conversaciones_sorted = sorted(conversaciones.values(), key=lambda x: x.fechaEnvio, reverse=True)
+    
+    return render(request, 'atencion/buzonMensajes.html', {'mensajes': conversaciones_sorted})
+
+
+
+
+@login_required
+def leerMensaje(request, mensajeId):
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+        mensaje = get_object_or_404(Mensaje, id=mensajeId)
+        fonoaudiologo = mensaje.receptor
+        tutor = mensaje.emisor
+    elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
+        mensaje = get_object_or_404(Mensaje, id=mensajeId)
+        mensaje.leido = True
+        mensaje.save()
+        fonoaudiologo = mensaje.receptor
+        tutor = mensaje.emisor
+        
+
+    # Obtener todos los mensajes entre el tutor y el fonoaudiólogo
+    mensajes = Mensaje.objects.filter(Q(emisor=tutor, receptor=fonoaudiologo) | Q(emisor=fonoaudiologo, receptor=tutor)).order_by('-fechaEnvio')
+    return render(request, 'atencion/leerMensaje.html', {'mensaje': mensaje, 'mensajes': mensajes})
+
+
+@login_required
+def responderMensaje(request, mensajeId):
+    mensaje = get_object_or_404(Mensaje, id=mensajeId)
+    tutor = mensaje.emisor
+    fonoaudiologo = mensaje.receptor
+    
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
+        if request.method == 'POST':
+            form = MensajeForm(request.POST)
+            if form.is_valid():
+                respuesta = form.save(commit=False)
+                respuesta.emisor = tutor
+                respuesta.receptor = fonoaudiologo
+                respuesta.paciente = mensaje.paciente
+                respuesta.save()
+                messages.success(request, 'Mensaje enviado correctamente.')
+                return redirect('buzonMensajes')
+        else:
+            form = MensajeForm()
+        return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
+    
+    elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
+        if request.method == 'POST':
+            form = MensajeForm(request.POST)
+            if form.is_valid():
+                respuesta = form.save(commit=False)
+                respuesta.emisor = tutor
+                respuesta.paciente = mensaje.paciente
+                respuesta.receptor = fonoaudiologo
+                respuesta.save()
+                messages.success(request, 'Mensaje enviado correctamente.')
+                return redirect('buzonMensajes')
+        else:
+            form = MensajeForm()
+        return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
