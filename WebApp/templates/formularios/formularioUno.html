@@ -11,20 +11,7 @@
                 <div class="card-header text-center">
                     <h2>Evaluación De La Actividad Comunicativa De La Persona Mayor</h2>
                 </div>
-                {% if respuestas %}
-                    <div class="mt-4">
-                        <strong>
-                            {% with puntos_si=respuestas|length %}
-                            {% if puntos_si >= 19 %}
-                            <p>Puntaje total: {{ puntos_si }} puntos. <br> Actividad comunicativa normal.</p>
-                            {% else %}
-                            <p>Puntaje total: {{ puntos_si }} puntos.  <br>Requiere un estudio más exhaustivo del o los ítems deficientes // déficit de actividad comunicativa.</p>
-                            <p>*Puntaje modificado (considerando persona con analfabetismo): 17 puntos: Actividad comunicativa normal.*</p>
-                            {% endif %}
-                            {% endwith %}
-                        </strong>
-                    </div>
-                    {% endif %}
+
                 <div class="card-body">
                     <table class="table table-bordered">
                         <thead>
