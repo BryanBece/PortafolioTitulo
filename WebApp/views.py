@@ -1,21 +1,35 @@
+# Importaciones de Python estándar
 from datetime import datetime, timedelta, time, date
 
+# Configuraciones de Django
 from django.conf import settings
-from django.contrib import auth, messages
+
+# Autenticación y autorización de Django
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib import messages  # Para mostrar mensajes de éxito, error, etc.
+
+# Envío de correo electrónico
 from django.core.mail import send_mail
+
+# Funciones y clases de vista de Django
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.db.models import Q
 
+# Funciones y clases para consultas de base de datos Django
+from django.db.models import Q
+from django.db import IntegrityError
 from .forms import *
 from user.models import *
+
+# Manipulación de archivos Excel
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 
+# Generación de archivos PDF
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -24,10 +38,6 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from io import BytesIO
 from reportlab.lib.units import mm
 
-# Create your views here.
-
-#NOMENCLATURA CAMELCASE ejemplo: estoEsUnEjemplo
-#Prueba
 
 #Vista home
 def home(request):
@@ -75,7 +85,6 @@ def perfil(request):
         return render(request, 'perfil.html', data)
     else:
         return render(request, 'perfil.html')
-
 
 #Vista Equipo
 def equipo(request):
@@ -260,7 +269,6 @@ def reservaHora(request):
     
     return render(request, 'reservaHoras/reservaHora.html', data)
 
-
 #Cancelar Reserva
 @login_required
 def cancelarReserva(request, id):
@@ -289,7 +297,7 @@ def cancelarReserva(request, id):
     
     return redirect('perfil')
 
-# ------------------- Reserva de horas -------------------
+# ------------------- FIN Reserva de horas -------------------
 
 #Restablecer Contrseña
 def restablecerContrasena(request, id, token):
@@ -403,7 +411,6 @@ def registroFono(request):
             data["form"] = formulario
     
     return render(request, 'registration/registroFono.html', data)
-
 
 #Comunas
 def obtener_comunas(request):
@@ -540,7 +547,7 @@ def eliminarPreguntas(request, id):
     messages.success(request, "Eliminado Correctamente")
     return redirect(to="preguntas")
 
-# ------------------- Formularios Evaluación -------------------
+# ------------------- FIN Formularios Evaluación -------------------
 
 #Sesion Asistida
 @login_required
@@ -568,6 +575,7 @@ def sesionNoAsistida(request, id):
     messages.success(request, "Guardada Correctamente")
     return redirect(to="perfil")
 
+# ------------------- Ficha Clinica -------------------
 
 # Ficha Clinica
 @login_required
@@ -583,38 +591,135 @@ def fichaClinica(request, id):
     
     return render(request, 'atencion/fichaClinica.html', data)
 
-
-#Buscar Paciente
 @login_required
-def busquedaPaciente(request):
-    rut = request.GET.get('rut', '')  # Default to empty string if 'rut' is not provided
-    pacientes = Paciente.objects.all()
+def formComunicativo(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=1)
     
-    if rut:
-        pacientes = pacientes.filter(rut__icontains=rut)
+    # Obtener el paciente
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=1)
     
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            if respuesta_value:
+                respuesta, created = RespuestaFormulario.objects.get_or_create(
+                    pregunta=pregunta,
+                    paciente=paciente,
+                    defaults={
+                        'respuesta': (respuesta_value == 'si'),
+                        'fechaRespuesta': timezone.now()
+                    }
+                )
+                respuesta.respuesta = (respuesta_value == 'si')
+                respuesta.fechaRespuesta = timezone.now()
+                respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas:
+        return render(request, 'formularios/formularioUno.html', {'respuestas': respuestas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioUno.html', {'preguntas': preguntas, 'paciente': paciente})
+
+@login_required
+def formSocial(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=2)
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=2)
+    
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            if respuesta_value:
+                if respuesta_value == 'Otro':
+                    respuesta_value = request.POST.get(f'otro_{pregunta.id}', '')
+
+                respuesta, created = RespuestaFormulario.objects.get_or_create(
+                    pregunta=pregunta,
+                    paciente=paciente,
+                    defaults={
+                        'respuesta': respuesta_value,
+                        'fechaRespuesta': timezone.now()
+                    }
+                )
+                respuesta.respuesta = respuesta_value
+                respuesta.fechaRespuesta = timezone.now()
+                respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas.exists():
+        return render(request, 'formularios/formularioDos.html', {'respuestas': respuestas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioDos.html', {'preguntas': preguntas, 'paciente': paciente})
+
+@login_required
+def formLenguaje(request, id):
+    preguntas = PreguntaFormulario.objects.filter(formulario_id=3)
+    paciente = get_object_or_404(Paciente, id=id)
+    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=3)
+    
+    if request.method == 'POST':
+        for pregunta in preguntas:
+            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+            observacion_value = request.POST.get(f'observacion_{pregunta.id}')
+            if respuesta_value:
+                respuesta_text = respuesta_value
+                if observacion_value:
+                    respuesta_text += f" - Obs: {observacion_value}"
+                
+                try:
+                    respuesta = RespuestaFormulario.objects.create(
+                        pregunta=pregunta,
+                        paciente=paciente,
+                        respuesta=respuesta_text,
+                        fechaRespuesta=timezone.now(),
+                    )
+                    respuesta.save()
+                except IntegrityError:
+                    # Si ya existe una respuesta, la actualizamos
+                    respuesta = RespuestaFormulario.objects.get(pregunta=pregunta, paciente=paciente)
+                    respuesta.respuesta = respuesta_text
+                    respuesta.fechaRespuesta = timezone.now()
+                    respuesta.save()
+        messages.success(request, 'Respuestas guardadas correctamente.')
+        return redirect('fichaClinica', id=paciente.id)
+    
+    # Si hay respuestas, las mostramos
+    if respuestas.exists():
+        return render(request, 'formularios/formularioTres.html', {'respuestas': respuestas, 'preguntas': preguntas, 'paciente': paciente})
+    
+    # Si no hay respuestas, mostramos el formulario
+    return render(request, 'formularios/formularioTres.html', {'preguntas': preguntas, 'paciente': paciente})
+
+# Notas Paciente
+@login_required
+def notasPaciente(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+
+    if request.method == 'POST':
+        form = NotasPacienteForm(request.POST)
+        if form.is_valid():
+            nota = form.save(commit=False)
+            nota.paciente = paciente
+            nota.save()
+            messages.success(request, 'Nota guardada correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
+        else:
+            messages.error(request, 'Error al guardar la nota.')
+    else:
+        form = NotasPacienteForm()
+
     data = {
-        'rut': rut,
-        'pacientes': pacientes
+        'paciente': paciente,
+        'form': form,
     }
-    
-    return render(request, 'atencion/buscarPaciente.html', data)
-
-
-
-def buscar_paciente(request):
-    rut = request.GET.get('rut')
-    
-    if rut:
-        try:
-            paciente = Paciente.objects.get(rut=rut)
-            messages.success(request, 'Paciente encontrado')
-            url = reverse('fichaClinica', args=[paciente.id])
-            return JsonResponse({'found': True, 'url': url})
-        except Paciente.DoesNotExist:
-            return JsonResponse({'found': False})
-    
-    return JsonResponse({'found': False})
+    return render(request, 'atencion/notasPaciente.html', data)
 
 #Sesión Fonoaudiologica
 @login_required
@@ -652,10 +757,44 @@ def sesionFono(request, id):
         
     return render(request, 'atencion/sesion.html', data)
 
+#Detalle Sesion
 @login_required
 def detalleSesion(request, id):
     sesion = get_object_or_404(SesionTerapeutica, id=id)
     return render(request, 'atencion/detalleSesion.html', {'sesion': sesion})
+
+# ------------------- FIN Ficha Clinica -------------------
+
+#Buscar Paciente
+@login_required
+def busquedaPaciente(request):
+    rut = request.GET.get('rut', '')  # Default to empty string if 'rut' is not provided
+    pacientes = Paciente.objects.all()
+    
+    if rut:
+        pacientes = pacientes.filter(rut__icontains=rut)
+    
+    data = {
+        'rut': rut,
+        'pacientes': pacientes
+    }
+    
+    return render(request, 'atencion/buscarPaciente.html', data)
+
+def buscar_paciente(request):
+    rut = request.GET.get('rut')
+    
+    if rut:
+        try:
+            paciente = Paciente.objects.get(rut=rut)
+            messages.success(request, 'Paciente encontrado')
+            url = reverse('fichaClinica', args=[paciente.id])
+            return JsonResponse({'found': True, 'url': url})
+        except Paciente.DoesNotExist:
+            return JsonResponse({'found': False})
+    
+    return JsonResponse({'found': False})
+
 
 def nuevaContrasenia(request, id, token):
     user = User.objects.get(id=id)
@@ -678,7 +817,6 @@ def nuevaContrasenia(request, id, token):
         messages.error(request, 'El enlace de Asignación de contraseña no es válido, posiblemente ha caducado.')
 
     return render(request, 'registration/nuevaContrasenia.html')
-
 
 # Editar Paciente y Tutor
 @login_required
@@ -711,7 +849,6 @@ def editarPacienteTutor(request, id):
         'regiones': Region.objects.all(),
         'paciente': paciente
     })
-
 
 #Listar Fonos
 @login_required
@@ -753,7 +890,6 @@ def eliminar_fono(request, id):
     
     messages.success(request, 'Fonoaudiologo eliminado correctamente.')
     return redirect('listaFonos')
-    
     
 # ------------------- Reportes -------------------
 @login_required
@@ -875,7 +1011,6 @@ def export_data_to_excel(request):
 
     return response
 
-
 #Reporte Reservas
 @login_required
 def reporteReservas(request):
@@ -902,8 +1037,6 @@ def filtrar_reservas(request):
 
     html = render_to_string('reportes/tablaReservas.html', context)
     return JsonResponse({'html': html})
-
-
 
 @login_required
 def exportar_reservas_pdf(request):
@@ -971,7 +1104,6 @@ def _add_page_number(canvas, doc, title):
     text = f"{title} - Página {page_num}"
     canvas.drawRightString(200*mm, 20*mm, text)
     
-    
 #Solicitud OIRS
 def modificarOirs(request, solicitud_id):
     solicitud = get_object_or_404(OIRS, id=solicitud_id)
@@ -1005,31 +1137,6 @@ def modificarOirs(request, solicitud_id):
     else:
         form = OIRSRespuestaForm(instance=solicitud)
     return render(request, 'oirs/modificarOirs.html', {'solicitud': solicitud, 'form': form})
-
-
-# Notas Paciente
-@login_required
-def notasPaciente(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
-
-    if request.method == 'POST':
-        form = NotasPacienteForm(request.POST)
-        if form.is_valid():
-            nota = form.save(commit=False)
-            nota.paciente = paciente
-            nota.save()
-            messages.success(request, 'Nota guardada correctamente.')
-            return redirect('fichaClinica', id=paciente.id)
-        else:
-            messages.error(request, 'Error al guardar la nota.')
-    else:
-        form = NotasPacienteForm()
-
-    data = {
-        'paciente': paciente,
-        'form': form,
-    }
-    return render(request, 'atencion/notasPaciente.html', data)
 
 
 #Graficos
@@ -1084,117 +1191,7 @@ def graficos(request):
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('perfil')
     
-    
-@login_required
-def formComunicativo(request, id):
-    preguntas = PreguntaFormulario.objects.filter(formulario_id=1)
-    
-    # Obtener el paciente
-    paciente = get_object_or_404(Paciente, id=id)
-    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=1)
-    
-    if request.method == 'POST':
-        for pregunta in preguntas:
-            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            if respuesta_value:
-                respuesta, created = RespuestaFormulario.objects.get_or_create(
-                    pregunta=pregunta,
-                    paciente=paciente,
-                    defaults={
-                        'respuesta': (respuesta_value == 'si'),
-                        'fechaRespuesta': timezone.now()
-                    }
-                )
-                respuesta.respuesta = (respuesta_value == 'si')
-                respuesta.fechaRespuesta = timezone.now()
-                respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
-    
-    # Si hay respuestas, las mostramos
-    if respuestas:
-        return render(request, 'formularios/formularioUno.html', {'respuestas': respuestas, 'paciente': paciente})
-    
-    # Si no hay respuestas, mostramos el formulario
-    return render(request, 'formularios/formularioUno.html', {'preguntas': preguntas, 'paciente': paciente})
-
-@login_required
-def formSocial(request, id):
-    preguntas = PreguntaFormulario.objects.filter(formulario_id=2)
-    paciente = get_object_or_404(Paciente, id=id)
-    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=2)
-    
-    if request.method == 'POST':
-        for pregunta in preguntas:
-            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            if respuesta_value:
-                if respuesta_value == 'Otro':
-                    respuesta_value = request.POST.get(f'otro_{pregunta.id}', '')
-
-                respuesta, created = RespuestaFormulario.objects.get_or_create(
-                    pregunta=pregunta,
-                    paciente=paciente,
-                    defaults={
-                        'respuesta': respuesta_value,
-                        'fechaRespuesta': timezone.now()
-                    }
-                )
-                respuesta.respuesta = respuesta_value
-                respuesta.fechaRespuesta = timezone.now()
-                respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
-    
-    # Si hay respuestas, las mostramos
-    if respuestas.exists():
-        return render(request, 'formularios/formularioDos.html', {'respuestas': respuestas, 'paciente': paciente})
-    
-    # Si no hay respuestas, mostramos el formulario
-    return render(request, 'formularios/formularioDos.html', {'preguntas': preguntas, 'paciente': paciente})
-
-from django.db import IntegrityError
-
-@login_required
-def formLenguaje(request, id):
-    preguntas = PreguntaFormulario.objects.filter(formulario_id=3)
-    paciente = get_object_or_404(Paciente, id=id)
-    respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=3)
-    
-    if request.method == 'POST':
-        for pregunta in preguntas:
-            respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            observacion_value = request.POST.get(f'observacion_{pregunta.id}')
-            if respuesta_value:
-                respuesta_text = respuesta_value
-                if observacion_value:
-                    respuesta_text += f" - Obs: {observacion_value}"
-                
-                try:
-                    respuesta = RespuestaFormulario.objects.create(
-                        pregunta=pregunta,
-                        paciente=paciente,
-                        respuesta=respuesta_text,
-                        fechaRespuesta=timezone.now(),
-                    )
-                    respuesta.save()
-                except IntegrityError:
-                    # Si ya existe una respuesta, la actualizamos
-                    respuesta = RespuestaFormulario.objects.get(pregunta=pregunta, paciente=paciente)
-                    respuesta.respuesta = respuesta_text
-                    respuesta.fechaRespuesta = timezone.now()
-                    respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
-    
-    # Si hay respuestas, las mostramos
-    if respuestas.exists():
-        return render(request, 'formularios/formularioTres.html', {'respuestas': respuestas, 'preguntas': preguntas, 'paciente': paciente})
-    
-    # Si no hay respuestas, mostramos el formulario
-    return render(request, 'formularios/formularioTres.html', {'preguntas': preguntas, 'paciente': paciente})
-
-    
-
+# ------------------- Contacto Tutor - Fono -------------------    
 @login_required
 def enviarMensaje(request):
     if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
@@ -1217,8 +1214,6 @@ def enviarMensaje(request):
             form = MensajeForm()
         return render(request, 'atencion/enviarMensaje.html', {'form': form, 'fonoaudiologos': fonoaudiologos})
 
-    
-
 @login_required
 def buzonMensajes(request):
     if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
@@ -1238,9 +1233,6 @@ def buzonMensajes(request):
     
     return render(request, 'atencion/buzonMensajes.html', {'mensajes': conversaciones_sorted})
 
-
-
-
 @login_required
 def leerMensaje(request, mensajeId):
     if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
@@ -1258,7 +1250,6 @@ def leerMensaje(request, mensajeId):
     # Obtener todos los mensajes entre el tutor y el fonoaudiólogo
     mensajes = Mensaje.objects.filter(Q(emisor=tutor, receptor=fonoaudiologo) | Q(emisor=fonoaudiologo, receptor=tutor)).order_by('-fechaEnvio')
     return render(request, 'atencion/leerMensaje.html', {'mensaje': mensaje, 'mensajes': mensajes})
-
 
 @login_required
 def responderMensaje(request, mensajeId):
@@ -1295,3 +1286,5 @@ def responderMensaje(request, mensajeId):
         else:
             form = MensajeForm()
         return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
+
+# ------------------- FIN Contacto Tutor - Fono -------------------   
