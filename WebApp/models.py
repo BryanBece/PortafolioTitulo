@@ -206,7 +206,8 @@ class Mensaje(models.Model):
     receptor = models.CharField(max_length=100)
     texto = models.TextField()
     fechaEnvio = models.DateTimeField(default=timezone.now)
-    leido = models.BooleanField(default=False)
+    leidoUno = models.BooleanField(default=False)
+    leidoDos = models.BooleanField(default=False)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

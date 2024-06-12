@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container-fluid">
     <h1>Bienvenido(a) {{ user.get_full_name }}</h1>
     <hr>
     <!-- PERFIL FONO -->
@@ -96,7 +96,7 @@
                 <td>
                     {% if reserva.estado == 'Asistida' %}
                     <button class="btn btn-success" disabled>Asistida</button>
-                    {% elif reserva.estado == 'No Asistid' %}
+                    {% elif reserva.estado == 'No Asistida' %}
                     <button class="btn btn-danger" disabled>No Asistida</button>
                     {% endif %}
                 </td>
@@ -140,7 +140,6 @@
     <p>No hay actividad reciente.</p>
     {% endif %}
 
-
     <!-- PERFIL TUTOR -->
     {% elif user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
     <h2>Tus siguientes horas agendadas:</h2>
@@ -176,43 +175,17 @@
 
     {% endif %}
 </div>
-
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script>
-    // Función para inicializar DataTables en cada tabla
     $(document).ready(function () {
-        $('#reservasHoyTable').DataTable({
+        $('#reservasHoyTable, #reservasFuturasTable, #reservasTotalTable, #logsTable, #reservasTutorTable').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
             },
-            order: [[0, 'desc']] 
-        });
-
-        $('#reservasFuturasTable').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-            },
-            order: [[0, 'desc']] 
-        });
-
-        $('#reservasTotalTable').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-            },
-            order: [[0, 'desc']] 
-        });
-
-        $('#logsTable').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-            },
-            order: [[0, 'desc']] 
-        });
-
-        $('#reservasTutorTable').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
-            },
-            order: [[0, 'desc']] 
+            order: [
+                [0, 'desc']
+            ]
         });
     });
 </script>

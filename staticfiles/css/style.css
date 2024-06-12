@@ -1,0 +1,93 @@
+        .navbar {
+            height: 10vh;
+            /* 10% del alto de la pantalla */
+            background-color: #f6f3ee;
+            /* Cambiar color de fondo */
+        }
+
+        /* Centrar elementos del navbar, excepto el logo */
+        .navbar-nav {
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        /* Ajustar el tamaño del botón de reservar hora */
+        .btn-reservar-hora {
+            font-size: 15px;
+            background-color: #f26baa;
+            /* Color de fondo rosa */
+            border-color: #f26baa;
+            /* Color del borde rosa */
+            text-transform: uppercase;
+            /* Convertir texto en mayúsculas */
+            letter-spacing: 1px;
+            /* Espaciado entre letras */
+        }
+
+        /* Cambiar la fuente a Roboto */
+        .navbar-brand,
+        .nav-link {
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 1px;
+            margin-right: 10px;
+            /* Espacio entre elementos del navbar */
+        }
+
+        .nav-link:hover {
+            color: black;
+            font-size: 17px;
+            font-weight: bold;
+            transition: all 0.5s ease-in-out;
+            /* Cambiar color al pasar el mouse */
+        }
+
+        /* Efecto hover */
+        .btn-reservar-hora:hover {
+            background-color: #e7549c;
+            /* Rosado más oscuro */
+            border-color: #e7549c;
+            /* Borde en rosado más oscuro */
+        }
+
+        body {
+            background-color: #f6f3ee;
+            /* Cambiar el color de fondo del body */
+            font-family: 'Roboto', sans-serif;
+            /* Cambiar la fuente a Roboto */
+        }
+
+        .footer {
+            background-color: #f6f3ee;
+            /* Color de fondo del footer */
+            width: 100%;
+            /* Ancho completo */
+
+            font-family: 'Roboto', sans-serif;
+            /* Cambiar la fuente a Roboto */
+            letter-spacing: 1px;
+            /* Espaciado entre letras */
+        }
+
+
+        .footer p {
+            margin: 0;
+            /* Eliminar el margen por defecto */
+            text-align: center;
+            /* Centrar el texto */
+        }
+
+        .footer .direccion {
+            font-size: 14px;
+            /* Tamaño de fuente para la dirección */
+            color: #555;
+            /* Color del texto para la dirección */
+        }
+
+        .footer .horario {
+            font-size: 14px;
+            /* Tamaño de fuente para el horario */
+            color: #555;
+            /* Color del texto para el horario */
+            margin-top: 5px;
+            /* Margen superior */
+        }

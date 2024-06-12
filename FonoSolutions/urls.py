@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import handler404
+from WebApp.views import paginaNoEncontrada
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('WebApp.urls')),
 ]
+
+handler404 = paginaNoEncontrada

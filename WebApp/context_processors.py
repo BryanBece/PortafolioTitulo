@@ -1,9 +1,15 @@
-from .models import Mensaje
+from .models import Mensaje, OIRS
 
 def mensajesNoLeidos(request):
     if request.user.is_authenticated:
-        fonoaudiologo = getattr(request.user, 'fonoaudiologo', None)
-        if fonoaudiologo:
-            mensajesNoLeidos = Mensaje.objects.filter(fonoaudiologo=fonoaudiologo, leido=False).count()
-            return {'mensajesNoLeidos': mensajesNoLeidos}
+        receptor = f"{request.user.nombre} {request.user.apellido}"
+        mensajesNoLeidos = Mensaje.objects.filter(receptor=receptor, leidoUno=False).count() + \
+                           Mensaje.objects.filter(receptor=receptor, leidoDos=False).count()
+        return {'mensajesNoLeidos': mensajesNoLeidos}
+    return {}
+
+def oirsPendientes(request):
+    if request.user.is_authenticated:
+        oirsPendientes = OIRS.objects.filter(estado='Pendiente').count()
+        return {'oirsPendientes': oirsPendientes}
     return {}

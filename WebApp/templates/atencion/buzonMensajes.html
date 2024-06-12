@@ -17,15 +17,20 @@
                 {% for mensaje in mensajes %}
                 <li class="list-group-item">
                     <a href="{% url 'leerMensaje' mensaje.id %}">
-                        {% if not mensaje.leido %}
-                        <span class="badge bg-danger"><i class="fas fa-exclamation-circle"></i> (Mensaje Nuevo)</span>
-                        {% else %}
-                        <i class="fas fa-envelope-open-text"></i>
-                        {% endif %}
                         {% if user.tipoUsuario.nombre_tipo_usuario == "Tutor" %}
-                        {{ mensaje.receptor }} - {{ mensaje.fechaEnvio }}
-                        {% else %}
-                        {{ mensaje.emisor }} - {{ mensaje.fechaEnvio }}
+                            {% if not mensaje.leidoUno %}
+                            <span class="badge bg-danger"><i class="fas fa-exclamation-circle"></i> (Mensaje Nuevo)</span>
+                            {% else %}
+                            <i class="fas fa-envelope-open-text"></i>
+                            {% endif %}
+                            {{ mensaje.receptor }} - {{ mensaje.fechaEnvio }}
+                        {% elif user.tipoUsuario.nombre_tipo_usuario == "Fonoaudiologo" %}
+                            {% if not mensaje.leidoDos %}
+                            <span class="badge bg-danger"><i class="fas fa-exclamation-circle"></i> (Mensaje Nuevo)</span>
+                            {% else %}
+                            <i class="fas fa-envelope-open-text"></i>
+                            {% endif %}
+                            {{ mensaje.emisor }} - {{ mensaje.fechaEnvio }}
                         {% endif %}
                     </a>
                 </li>

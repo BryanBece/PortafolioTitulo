@@ -76,4 +76,4 @@ class OIRSAdmin(admin.ModelAdmin):
     
 @admin.register(Mensaje)
 class MensajeAdmin(admin.ModelAdmin):
-    list_display = ('id','emisor', 'receptor', 'paciente','texto','fechaEnvio','leido')
+    list_display = ('id','emisor', 'receptor', 'paciente','texto','fechaEnvio','leidoUno','leidoDos')

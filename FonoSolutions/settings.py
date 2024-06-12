@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-dpji+k3#chh2-gtic=8)fp6bm0n(ypj#vcz+(%sswvfnxrmkz*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 LOGIN_REDIRECT_URL = "/login"
 LOGOUT_REDIRECT_URL = "/login"
@@ -74,7 +74,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'WebApp.context_processors.mensajesNoLeidos'
+                'WebApp.context_processors.mensajesNoLeidos',
+                'WebApp.context_processors.oirsPendientes'
             ],
         },
     },
@@ -131,7 +132,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+# Directorio donde collectstatic almacenará los archivos
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "WebApp/static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

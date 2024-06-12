@@ -1,54 +1,44 @@
 from django.urls import path, include
 from .views import *
-from django.contrib.auth import views as auth_views
 from . import views
 
-
-
 urlpatterns = [
-    #Home
+    # Home
     path('', home, name='home'),
-    #Login
+    # Login
     path('login/', login, name='login'),
-    #Logout
+    # Logout
     path('logout/', logout, name='logout'),
-    #Perfil
+    # Perfil
     path('perfil/', perfil, name='perfil'),
-    #Equipo
+    # Equipo
     path('equipo/', equipo, name='equipo'),
-    #Nosotros
+    # Nosotros
     path('nosotros/', nosotros, name='nosotros'),
-    #OIRS
+    # OIRS
     path('oirs/', oirs, name='oirs'),
-    
-    
-    #Reserva
+    # Reserva
     path('calendario/', calendario, name='calendario'),
     path('ver-horas-disponibles/', ver_horas_disponibles, name='ver_horas_disponibles'),
     path('reservar-hora/', reservaHora, name='reservar_hora'),
     path('cancelarReserva/<int:id>', cancelarReserva, name='cancelarReserva'),
     path('confirmarAsistencia/<int:id>', sesionAsistida, name='confirmarAsistencia'),
     path('noAsistida/<int:id>', sesionNoAsistida, name='noAsistida'),
-    
-    
-    #RegistroFono
+    # RegistroFono
     path('registroFono/', registroFono, name='registroFono'),
     path('listaFonos/', listarFonos, name='listaFonos'),
     path('editarFono/<int:id>/', editarFono, name='editarFono'),
     path('eliminarFono/<int:id>/', eliminar_fono, name='eliminarFono'),
-    #Comunas
+    # Comunas
     path('obtener_comunas/', obtener_comunas, name='obtener_comunas'),
-    #RegistroPaciente - Tutor
+    # RegistroPaciente - Tutor
     path('registroPaciente/', registroPacienteTutor, name='registroPaciente'),
     path('editar_paciente_tutor/<int:id>/', editarPacienteTutor, name='editar_paciente_tutor'),
-    
-    
-    #Reset Password
+    # Reset Password
     path('resetearContrasena/', resetearContrasena, name='resetearContrasena'),
     path('restablecerContrasena/<int:id>/<str:token>/', restablecerContrasena, name='restablecerContrasena'),
     path('setPassword/<int:id>/<str:token>/', nuevaContrasenia , name='setPassword'),
-
-    #Preguntas
+    # Preguntas
     path('preguntas/', preguntas, name='preguntas'),
     path('crearPreguntas/', crearPreguntas, name='crearPreguntas'),
     path('modificarPreguntas/<int:id>', modificarPreguntas, name='modificarPreguntas'),
@@ -56,9 +46,7 @@ urlpatterns = [
     path('formComunicativo/<int:id>', formComunicativo, name='formComunicativo'),
     path('formSocial/<int:id>', formSocial, name='formSocial'),
     path('formLenguaje/<int:id>', formLenguaje, name='formLenguaje'),
-    
-    
-    #Atencion
+    # Atencion
     path('busquedaPaciente/', busquedaPaciente, name='busquedaPaciente'),
     path('buscar_paciente/', views.buscar_paciente, name='buscar_paciente'),
     path('fichaClinica/<int:id>', fichaClinica, name='fichaClinica'),
@@ -66,17 +54,15 @@ urlpatterns = [
     path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),
     path('estadoOIRS/<int:solicitud_id>/', modificarOirs, name='modificarOirs'),
     path('notasPaciente/<int:id>/', notasPaciente, name='notasPaciente'),
-    path('enviar/', views.enviarMensaje, name='enviarMensaje'),
-    path('buzon/', views.buzonMensajes, name='buzonMensajes'),
-    path('leer/<int:mensajeId>/', views.leerMensaje, name='leerMensaje'),
-    path('responder/<int:mensajeId>/', views.responderMensaje, name='responderMensaje'),
-    
-    #Reportes
+    path('enviar/', enviarMensaje, name='enviarMensaje'),
+    path('buzon/', buzonMensajes, name='buzonMensajes'),
+    path('leer/<int:mensajeId>/', leerMensaje, name='leerMensaje'),
+    path('responder/<int:mensajeId>/', responderMensaje, name='responderMensaje'),
+    # Reportes
     path('reportes/', reportePrincipal, name='reportes'),
     path('exportar-datos/', export_data_to_excel, name='exportar_datos'),
     path('reporteReservas/', reporteReservas, name='reporteReservas'),
     path('filtrar-reservas/', filtrar_reservas, name='filtrar_reservas'),
     path('exportar-reservas-pdf/', exportar_reservas_pdf, name='exportar_reservas_pdf'),
     path('graficos/', graficos, name='graficos'),
-
 ]

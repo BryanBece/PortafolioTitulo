@@ -43,6 +43,10 @@ from reportlab.lib.units import mm
 def home(request):
     return render(request, 'home.html')
 
+#Vista 404
+def paginaNoEncontrada(request, exception):
+    return render(request, 'paginaNoEncontrada.html', status=404)
+
 # Vista Login
 def login(request):
     if request.method == "POST":
@@ -69,6 +73,8 @@ def logout(request):
 #Vista Perfil
 @login_required
 def perfil(request):
+    print(request.user.nombre)
+    print(request.user.apellido)
     if request.user.tipoUsuario.nombre_tipo_usuario in ["Fonoaudiologo", "Gerencia", "Tutor"]:
         today = date.today()
         tomorrow = today + timedelta(days=1)
@@ -795,7 +801,7 @@ def buscar_paciente(request):
     
     return JsonResponse({'found': False})
 
-
+#Nueva Contraseña Usuario
 def nuevaContrasenia(request, id, token):
     user = User.objects.get(id=id)
     if user is not None and default_token_generator.check_token(user, token):
@@ -1191,7 +1197,9 @@ def graficos(request):
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('perfil')
     
-# ------------------- Contacto Tutor - Fono -------------------    
+# ------------------- Contacto Tutor - Fono -------------------   
+
+#Primer Contacto 
 @login_required
 def enviarMensaje(request):
     if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
@@ -1214,18 +1222,18 @@ def enviarMensaje(request):
             form = MensajeForm()
         return render(request, 'atencion/enviarMensaje.html', {'form': form, 'fonoaudiologos': fonoaudiologos})
 
+#Buzon Mensajes
 @login_required
 def buzonMensajes(request):
-    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
-        mensajes_emisor = Mensaje.objects.filter(emisor=request.user.nombre + ' ' + request.user.apellido)
-        mensajes_receptor = Mensaje.objects.filter(receptor=request.user.nombre + ' ' + request.user.apellido)
-        mensajes = mensajes_emisor | mensajes_receptor
-    elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
-        mensajes = Mensaje.objects.filter(receptor=request.user.nombre + ' ' + request.user.apellido)
+
+    mensajes_emisor = Mensaje.objects.filter(emisor=request.user.nombre + ' ' + request.user.apellido)
+    mensajes_receptor = Mensaje.objects.filter(receptor=request.user.nombre + ' ' + request.user.apellido)
+    mensajes = mensajes_emisor | mensajes_receptor
     
     conversaciones = {}
     for mensaje in mensajes:
-        destinatario = mensaje.receptor if mensaje.emisor == request.user.username else mensaje.emisor
+        # Identificar destinatario correctamente
+        destinatario = mensaje.receptor if mensaje.emisor == request.user.nombre + ' ' + request.user.apellido else mensaje.emisor
         if destinatario not in conversaciones or mensaje.fechaEnvio > conversaciones[destinatario].fechaEnvio:
             conversaciones[destinatario] = mensaje
     
@@ -1233,15 +1241,19 @@ def buzonMensajes(request):
     
     return render(request, 'atencion/buzonMensajes.html', {'mensajes': conversaciones_sorted})
 
+#Leer Mensaje
 @login_required
 def leerMensaje(request, mensajeId):
     if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
         mensaje = get_object_or_404(Mensaje, id=mensajeId)
         fonoaudiologo = mensaje.receptor
         tutor = mensaje.emisor
+        mensaje.leidoUno = True
+        mensaje.save()
+        
     elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
         mensaje = get_object_or_404(Mensaje, id=mensajeId)
-        mensaje.leido = True
+        mensaje.leidoDos = True
         mensaje.save()
         fonoaudiologo = mensaje.receptor
         tutor = mensaje.emisor
@@ -1251,6 +1263,7 @@ def leerMensaje(request, mensajeId):
     mensajes = Mensaje.objects.filter(Q(emisor=tutor, receptor=fonoaudiologo) | Q(emisor=fonoaudiologo, receptor=tutor)).order_by('-fechaEnvio')
     return render(request, 'atencion/leerMensaje.html', {'mensaje': mensaje, 'mensajes': mensajes})
 
+#Responder Mensaje
 @login_required
 def responderMensaje(request, mensajeId):
     mensaje = get_object_or_404(Mensaje, id=mensajeId)
@@ -1265,6 +1278,7 @@ def responderMensaje(request, mensajeId):
                 respuesta.emisor = tutor
                 respuesta.receptor = fonoaudiologo
                 respuesta.paciente = mensaje.paciente
+                respuesta.leidoUno = True
                 respuesta.save()
                 messages.success(request, 'Mensaje enviado correctamente.')
                 return redirect('buzonMensajes')
@@ -1277,9 +1291,10 @@ def responderMensaje(request, mensajeId):
             form = MensajeForm(request.POST)
             if form.is_valid():
                 respuesta = form.save(commit=False)
-                respuesta.emisor = tutor
+                respuesta.emisor = fonoaudiologo
                 respuesta.paciente = mensaje.paciente
-                respuesta.receptor = fonoaudiologo
+                respuesta.receptor = tutor
+                respuesta.leidoDos = True
                 respuesta.save()
                 messages.success(request, 'Mensaje enviado correctamente.')
                 return redirect('buzonMensajes')
