@@ -73,8 +73,6 @@ def logout(request):
 #Vista Perfil
 @login_required
 def perfil(request):
-    print(request.user.nombre)
-    print(request.user.apellido)
     if request.user.tipoUsuario.nombre_tipo_usuario in ["Fonoaudiologo", "Gerencia", "Tutor"]:
         today = date.today()
         tomorrow = today + timedelta(days=1)
@@ -823,6 +821,72 @@ def nuevaContrasenia(request, id, token):
         messages.error(request, 'El enlace de Asignación de contraseña no es válido, posiblemente ha caducado.')
 
     return render(request, 'registration/nuevaContrasenia.html')
+
+#Registro Paciente-Tutor
+@login_required
+def registroPacienteTutor(request):
+    data = {
+        "regiones": Region.objects.all(),
+        'formPac': RegistroPacienteForm(),
+        'formTut': RegistroTutorForm(),
+        'rut': request.GET.get('rut', '')  # Modificamos aquí para que si el rut es None, lo reemplace por una cadena vacía
+    }
+    
+    if request.method == 'POST':
+        formularioPaciente = RegistroPacienteForm(request.POST)
+        formularioTutor = RegistroTutorForm(request.POST)
+        if formularioPaciente.is_valid() and formularioTutor.is_valid():
+            nombreTutor = formularioTutor.cleaned_data.get('nombre')
+            apellidoTutor = formularioTutor.cleaned_data.get('apellido')
+            correoTutor = formularioTutor.cleaned_data.get('email')
+            
+            if User.objects.filter(email=correoTutor).exists():
+                messages.error(request, "El correo del tutor ya está registrado.")
+            else:
+                # Crear Tutor
+                formularioTutor.save()
+                
+                tut = Tutor.objects.get(email=correoTutor)
+                pac = Paciente()
+                pac.nombre = formularioPaciente.cleaned_data.get('nombre')
+                pac.apellido = formularioPaciente.cleaned_data.get('apellido')
+                pac.rut = formularioPaciente.cleaned_data.get('rut')
+                pac.fechaNacimiento = formularioPaciente.cleaned_data.get('fechaNacimiento')
+                pac.genero = formularioPaciente.cleaned_data.get('genero')
+                pac.telefono = formularioPaciente.cleaned_data.get('telefono')
+                pac.direccion = formularioPaciente.cleaned_data.get('direccion')
+                pac.comuna = formularioPaciente.cleaned_data.get('comuna')
+                pac.tutor = tut
+                pac.save()
+                
+                # Crear un nuevo usuario
+                usuTut = User()
+                usuTut.username = correoTutor
+                usuTut.email = correoTutor
+                usuTut.nombre = nombreTutor
+                usuTut.apellido = apellidoTutor
+                tipo_usuario_tutor = tipo_usuario.objects.get(nombre_tipo_usuario='Tutor')
+                usuTut.tipoUsuario = tipo_usuario_tutor
+                usuTut.save()
+                
+                # Enviar correo de bienvenida y restablecimiento de contraseña
+                token = default_token_generator.make_token(usuTut)
+                reset_url = reverse('setPassword', args=[usuTut.id, token])
+                link = request.build_absolute_uri(reset_url)
+                subject = 'Bienvenido a COFAM - Configura tu Contraseña'
+                html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombreTutor, 'link': link})
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [correoTutor], html_message=html_message)
+                
+                log = Log(username=correoTutor, texto='Registro de Paciente y Tutor')
+                log.save()
+                
+                messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
+                return redirect('fichaClinica', id=pac.id)
+            
+        else:
+            data["formPac"] = formularioPaciente
+            data["formTut"] = formularioTutor
+    return render(request, 'registration/registroPacienteTutor.html', data)
 
 # Editar Paciente y Tutor
 @login_required

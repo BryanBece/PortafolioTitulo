@@ -4,7 +4,6 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
 <script>
     // Función para obtener las comunas de una región
     $(document).ready(function () {
@@ -55,7 +54,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="rut" class="form-label">RUT</label>
-                            <input type="text" class="form-control" id="rut" name="rut" value="{{ rut }}" readonly>
+                            <input type="text" class="form-control" id="rut" name="rut" value="{{ rut }}" {% if rut is None %}placeholder="Ingrese el RUT"{% endif %}>
                         </div>                
                         <div class="form-group">
                             {{ formPac.genero | as_crispy_field }}
