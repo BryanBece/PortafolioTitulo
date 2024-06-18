@@ -1277,6 +1277,7 @@ def enviarMensaje(request):
                 mensaje.paciente = Paciente.objects.get(tutor=tutor)
                 fonoaudiologo_id = request.POST.get('fonoaudiologo')
                 fonoaudiologo = Fonoaudiologo.objects.get(pk=fonoaudiologo_id)
+                mensaje.leidoUno = True
                 mensaje.emisor = tutor
                 mensaje.receptor = fonoaudiologo
                 mensaje.save()
@@ -1331,39 +1332,26 @@ def leerMensaje(request, mensajeId):
 @login_required
 def responderMensaje(request, mensajeId):
     mensaje = get_object_or_404(Mensaje, id=mensajeId)
-    tutor = mensaje.emisor
-    fonoaudiologo = mensaje.receptor
-    
-    if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
-        if request.method == 'POST':
-            form = MensajeForm(request.POST)
-            if form.is_valid():
-                respuesta = form.save(commit=False)
-                respuesta.emisor = tutor
-                respuesta.receptor = fonoaudiologo
-                respuesta.paciente = mensaje.paciente
+
+    if request.method == 'POST':
+        form = MensajeForm(request.POST)
+        if form.is_valid():
+            respuesta = form.save(commit=False)
+            respuesta.emisor = request.user.nombre + ' ' + request.user.apellido
+            respuesta.receptor = mensaje.emisor if mensaje.emisor != (request.user.nombre + ' ' + request.user.apellido) else mensaje.receptor
+            respuesta.paciente = mensaje.paciente
+
+            if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
                 respuesta.leidoUno = True
-                respuesta.save()
-                messages.success(request, 'Mensaje enviado correctamente.')
-                return redirect('buzonMensajes')
-        else:
-            form = MensajeForm()
-        return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
-    
-    elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
-        if request.method == 'POST':
-            form = MensajeForm(request.POST)
-            if form.is_valid():
-                respuesta = form.save(commit=False)
-                respuesta.emisor = fonoaudiologo
-                respuesta.paciente = mensaje.paciente
-                respuesta.receptor = tutor
+            elif request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
                 respuesta.leidoDos = True
-                respuesta.save()
-                messages.success(request, 'Mensaje enviado correctamente.')
-                return redirect('buzonMensajes')
-        else:
-            form = MensajeForm()
-        return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
+
+            respuesta.save()
+            messages.success(request, 'Mensaje enviado correctamente.')
+            return redirect('buzonMensajes')
+    else:
+        form = MensajeForm()
+    
+    return render(request, 'atencion/responderMensaje.html', {'form': form, 'mensaje': mensaje})
 
 # ------------------- FIN Contacto Tutor - Fono -------------------   
