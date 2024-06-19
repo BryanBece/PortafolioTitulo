@@ -1,17 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #f26baa;
+            border-radius: 10px;
+            background-color: #fff0f5;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            background-color: #f26baa;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .footer {
+            padding: 20px;
+            border-top: 1px solid #f26baa;
+        }
+        .footer p {
+            font-size: 14px;
+            color: #555;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #f26baa;
+            margin: 20px 0;
+        }
+        .highlight {
+            color: #f26baa;
+        }
+    </style>
+</head>
 <body>
-    <h1>Confirmación Reserva De Hora Para <strong>COFAM</strong></h1>
-    <hr>
-    <p>Se ha reservado con éxito con los siguientes datos:</p>
-    <p>Fecha: {{ fecha }}</p>
-    <p>Hora: {{ hora }}</p>
-    <p>Paciente: {{ nombre }} {{ apellido }} </p>
-    <p>Rut: {{ rut }}</p>
-    <p>Profesional: {{ fonoaudiologo }}</p>
-    <hr>
-    <footer>
-    <p>Si no solicitaste reservar esta hora, por favor ignora este mensaje.</p>
-    <p>Gracias.</p>
-    <p>El equipo de Web <strong>COFAM</strong></p>
-    </footer>
-    
+    <div class="email-container">
+        <div class="header">
+            <h1>Confirmación Reserva De Hora Para <strong>COFAM</strong></h1>
+        </div>
+        <hr>
+        <div class="content">
+            <p>Se ha reservado con éxito con los siguientes datos:</p>
+            <p><span class="highlight">Fecha:</span> {{ fecha }}</p>
+            <p><span class="highlight">Hora:</span> {{ hora }}</p>
+            <p><span class="highlight">Paciente:</span> {{ nombre }} {{ apellido }}</p>
+            <p><span class="highlight">Rut:</span> {{ rut }}</p>
+            <p><span class="highlight">Profesional:</span> {{ fonoaudiologo }}</p>
+        </div>
+        <hr>
+        <div class="footer">
+            <p>Si no solicitaste reservar esta hora, por favor ignora este mensaje.</p>
+            <p>Gracias.</p>
+            <p>El equipo de Web <strong>COFAM</strong></p>
+        </div>
+    </div>
 </body>
+</html>
