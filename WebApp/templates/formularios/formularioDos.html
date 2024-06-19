@@ -65,7 +65,8 @@
                                             <option value="Hermano/Hermana">Hermano/Hermana</option>
                                             <option value="Otro">Otro</option>
                                         </select>
-                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2" style="display:none;" placeholder="Especifique">
+                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2"
+                                            style="display:none;" placeholder="Especifique">
                                         {% elif forloop.counter == 2 %}
                                         <!-- Segunda pregunta con choices de frecuencia -->
                                         <select name="pregunta_{{ pregunta.id }}" class="form-select">
@@ -85,12 +86,16 @@
                                         {% elif forloop.counter == 4 %}
                                         <!-- Cuarta pregunta con choices de temas -->
                                         <select name="pregunta_{{ pregunta.id }}" class="form-select">
-                                            <option value="Satisfacción de necesidades vitales">Satisfacción de necesidades vitales (función instrumental)</option>
-                                            <option value="Emociones o propósitos de vida">Emociones o propósitos de vida (función personal)</option>
-                                            <option value="Noticias diarias o información mundial">Noticias diarias o información mundial (función cognitiva)</option>
+                                            <option value="Satisfacción de necesidades vitales">Satisfacción de
+                                                necesidades vitales (función instrumental)</option>
+                                            <option value="Emociones o propósitos de vida">Emociones o propósitos de
+                                                vida (función personal)</option>
+                                            <option value="Noticias diarias o información mundial">Noticias diarias o
+                                                información mundial (función cognitiva)</option>
                                             <option value="Otro">Otro</option>
                                         </select>
-                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2" style="display:none;" placeholder="Especifique">
+                                        <input type="text" name="otro_{{ pregunta.id }}" class="form-control mt-2"
+                                            style="display:none;" placeholder="Especifique">
                                         {% elif forloop.counter == 5 %}
                                         <!-- Quinta pregunta con choices de satisfacción -->
                                         <select name="pregunta_{{ pregunta.id }}" class="form-select">
@@ -123,19 +128,19 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll("select").forEach(function(select) {
-        select.addEventListener("change", function() {
-            var input = this.nextElementSibling;
-            if (this.value === "Otro") {
-                input.style.display = "block";
-            } else {
-                input.style.display = "none";
-                input.value = ""; // Clear the input if it's hidden
-            }
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("select").forEach(function (select) {
+            select.addEventListener("change", function () {
+                var input = this.nextElementSibling;
+                if (this.value === "Otro") {
+                    input.style.display = "block";
+                } else {
+                    input.style.display = "none";
+                    input.value = ""; 
+                }
+            });
         });
     });
-});
 </script>
 
 {% endblock %}

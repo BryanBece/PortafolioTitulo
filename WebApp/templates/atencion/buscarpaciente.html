@@ -63,7 +63,6 @@
     {% endif %}
 </div>
 
-<!-- Incluye jQuery y DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"></script>
@@ -74,7 +73,7 @@
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json"
             },
-            dom: 'lrtip' // Oculta la barra de búsqueda
+            dom: 'lrtip' 
         });
 
         document.getElementById('buscarPacienteForm').onsubmit = function(event) {

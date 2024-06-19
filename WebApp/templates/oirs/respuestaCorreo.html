@@ -69,7 +69,7 @@
             <div class="card-header">
                 <h4 class="text-center">Respuesta a su {{ solicitud.get_tipo_mensaje_display }}</h4>
             </div>
-            <div class="card-body" style="word-wrap: break-word;"> <!-- Esto es nuevo -->
+            <div class="card-body" style="word-wrap: break-word;">
                 <p><span class="strong">Estimado/a {{ solicitud.nombre }},</span></p>
                 <p>Con fecha <span class="strong">{{ solicitud.fecha_creacion|date:"d-m-Y" }}</span> hemos recibido su {{ solicitud.get_tipo_mensaje_display }}, número de ticket <span class="strong">{{ solicitud.id }}</span>.</p>
                 <p>Le informamos que hemos respondido su {{ solicitud.get_tipo_mensaje_display }}. A continuación, con fecha <span class="strong">{{ solicitud.fecha_respuesta|date:"d-m-Y" }}</span>, le proporcionamos la siguiente respuesta:</p>

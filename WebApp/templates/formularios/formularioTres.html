@@ -49,7 +49,8 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>RESPONDA, MARCANDO SÍ, A VECES, O NO, LUEGO DE EJECUTAR LA ACTIVIDAD PRESENTADA.</th>
+                                    <th>RESPONDA, MARCANDO SÍ, A VECES, O NO, LUEGO DE EJECUTAR LA ACTIVIDAD PRESENTADA.
+                                    </th>
                                     <th>SÍ</th>
                                     <th>A VECES</th>
                                     <th>NO</th>
@@ -79,7 +80,7 @@
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary">Enviar</button>
                             {% if paciente %}
-                                <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-secondary">Volver</a>
+                            <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-secondary">Volver</a>
                             {% endif %}
                         </div>
                     </form>

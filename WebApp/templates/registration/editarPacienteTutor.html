@@ -69,7 +69,7 @@
                         </div>
                         <div class="mb-3">
                             {{ formPac.rut | as_crispy_field }}
-                        </div>                
+                        </div>
                         <div class="form-group">
                             {{ formPac.genero | as_crispy_field }}
                         </div>
@@ -87,7 +87,9 @@
                             <select class="form-control" name="region" id="id_region">
                                 <option value="">Seleccione una región</option>
                                 {% for region in regiones %}
-                                <option value="{{ region.id }}" {% if region.id == paciente_region_id %}selected{% endif %}>{{ region.region }}</option>
+                                <option value="{{ region.id }}"
+                                    {% if region.id == paciente_region_id %}selected{% endif %}>{{ region.region }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -122,13 +124,15 @@
                         </div>
                         <div class="form-group">
                             <label for="id_email">Email*</label>
-                            <input type="email" class="form-control" id="id_email" name="{{ formTut.email.name }}" value="{{ formTut.email.value }}" readonly>
+                            <input type="email" class="form-control" id="id_email" name="{{ formTut.email.name }}"
+                                value="{{ formTut.email.value }}" readonly>
                         </div>
-                        <button type="submit"  style="width: 100%; margin-top: 10px;"><i class="fas fa-save"></i> Guardar Cambios </button>
+                        <button type="submit" style="width: 100%; margin-top: 10px;"><i class="fas fa-save"></i> Guardar
+                            Cambios </button>
                     </form>
-                    <!-- Botón "Volver" -->
                     <div class="text-center" style="margin-top: 10px;">
-                        <a href="{% url 'fichaClinica' id=paciente.id %}" class="btn btn-secondary" style="width: 100%;"><i class="fas fa-arrow-left"></i> Volver a la Ficha Clínica</a>
+                        <a href="{% url 'fichaClinica' id=paciente.id %}" class="btn btn-secondary"
+                            style="width: 100%;"><i class="fas fa-arrow-left"></i> Volver a la Ficha Clínica</a>
                     </div>
                 </div>
             </div>
