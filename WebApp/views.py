@@ -905,7 +905,6 @@ def reportePrincipal(request):
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('perfil')
     
-# Base De Datos
 @login_required
 def export_data_to_excel(request):
     # Crear un libro de trabajo y hojas
@@ -914,23 +913,22 @@ def export_data_to_excel(request):
     fonoaudiologo_sheet.title = 'Fonoaudiologos'
     paciente_sheet = workbook.create_sheet(title='Pacientes')
     reserva_sheet = workbook.create_sheet(title='Reservas')
+    log_sheet = workbook.create_sheet(title='Logs')
 
     # Estilos
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    thin_border = Border(left=Side(style='thin'), 
-                         right=Side(style='thin'), 
-                         top=Side(style='thin'), 
-                         bottom=Side(style='thin'))
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
     alignment = Alignment(horizontal='center', vertical='center')
 
-    # Escribir los encabezados de las columnas con estilos
+    # Encabezados de las hojas
     headers = [
         ('Fonoaudiologos', ['ID', 'Nombre', 'Apellido', 'RUT', 'Género', 'Teléfono', 'Email', 'Clínica']),
         ('Pacientes', ['ID', 'Nombre', 'Apellido', 'RUT', 'Fecha Nacimiento', 'Género', 'Teléfono', 'Dirección', 'Comuna', 'Tutor']),
-        ('Reservas', ['ID', 'Fecha', 'Hora', 'Fonoaudiologo', 'Nombre Paciente', 'Apellido Paciente', 'RUT Paciente', 'Teléfono Paciente', 'Email Paciente', 'Estado'])
+        ('Reservas', ['ID', 'Fecha', 'Hora', 'Fonoaudiologo', 'Nombre Paciente', 'Apellido Paciente', 'RUT Paciente', 'Teléfono Paciente', 'Email Paciente', 'Estado']),
+        ('Logs', ['ID', 'Usuario', 'Fecha', 'Texto'])
     ]
-    sheets = [fonoaudiologo_sheet, paciente_sheet, reserva_sheet]
+    sheets = [fonoaudiologo_sheet, paciente_sheet, reserva_sheet, log_sheet]
 
     for sheet, header in zip(sheets, headers):
         sheet.append(header[1])
@@ -945,22 +943,24 @@ def export_data_to_excel(request):
     column_widths = {
         'Fonoaudiologos': [5, 20, 20, 12, 10, 12, 25, 20],
         'Pacientes': [5, 20, 20, 15, 15, 10, 12, 30, 20, 20],
-        'Reservas': [5, 12, 10, 20, 20, 20, 15, 12, 25, 10]
+        'Reservas': [5, 12, 10, 20, 20, 20, 15, 12, 25, 10],
+        'Logs': [5, 20, 20, 30]
     }
 
     for sheet, widths in zip(sheets, column_widths.values()):
         for i, width in enumerate(widths, start=1):
             sheet.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
 
+    # Rellenar las hojas con datos
     for fono in Fonoaudiologo.objects.all():
         row = [
-            fono.id, 
-            fono.nombre, 
-            fono.apellido, 
-            fono.rut, 
-            fono.genero.genero, 
-            fono.telefono, 
-            fono.email, 
+            fono.id,
+            fono.nombre,
+            fono.apellido,
+            fono.rut,
+            fono.genero.genero,
+            fono.telefono,
+            fono.email,
             fono.clinica.nombre
         ]
         fonoaudiologo_sheet.append(row)
@@ -971,15 +971,15 @@ def export_data_to_excel(request):
 
     for paciente in Paciente.objects.all():
         row = [
-            paciente.id, 
-            paciente.nombre, 
-            paciente.apellido, 
-            paciente.rut, 
+            paciente.id,
+            paciente.nombre,
+            paciente.apellido,
+            paciente.rut,
             paciente.fechaNacimiento.strftime('%Y-%m-%d'),  # Formatear fecha
-            paciente.genero.genero, 
-            paciente.telefono, 
-            paciente.direccion, 
-            paciente.comuna.comuna, 
+            paciente.genero.genero,
+            paciente.telefono,
+            paciente.direccion,
+            paciente.comuna.comuna,
             paciente.tutor.nombre
         ]
         paciente_sheet.append(row)
@@ -990,20 +990,34 @@ def export_data_to_excel(request):
 
     for reserva in ReservaHora.objects.all():
         row = [
-            reserva.id, 
+            reserva.id,
             reserva.fecha.strftime('%Y-%m-%d'),
-            reserva.hora.strftime('%H:%M:%S'), 
-            str(reserva.fonoaudiologo),  
-            reserva.nombrePaciente, 
-            reserva.apellidoPaciente, 
-            reserva.rutPaciente, 
-            reserva.telefonoPaciente, 
-            reserva.emailPaciente, 
+            reserva.hora.strftime('%H:%M:%S'),
+            str(reserva.fonoaudiologo),
+            reserva.nombrePaciente,
+            reserva.apellidoPaciente,
+            reserva.rutPaciente,
+            reserva.telefonoPaciente,
+            reserva.emailPaciente,
             reserva.estado
         ]
         reserva_sheet.append(row)
         for col in range(1, len(row) + 1):
             cell = reserva_sheet.cell(row=reserva_sheet.max_row, column=col)
+            cell.border = thin_border
+            cell.alignment = alignment
+
+    # Rellenar la hoja de logs
+    for log in Log.objects.order_by('-fecha_inicio'):
+        row = [
+            log.id,
+            log.username,
+            log.fecha_inicio.strftime('%Y-%m-%d %H:%M:%S'),  # Formatear fecha y hora
+            log.texto
+        ]
+        log_sheet.append(row)
+        for col in range(1, len(row) + 1):
+            cell = log_sheet.cell(row=log_sheet.max_row, column=col)
             cell.border = thin_border
             cell.alignment = alignment
 
