@@ -97,13 +97,14 @@ class ReservaHoraForm(forms.ModelForm):
         if horarios_disponibles:
             self.fields['hora'].choices = [(horario.id, horario.hora.strftime('%H:%M')) for horario in horarios_disponibles]
 
+#Formulario Preguntas
 class PreguntasForm(forms.ModelForm):
     class Meta:
         model = PreguntaFormulario
         fields = '__all__'
         exclude = ['id']
         
-        
+#Formulario de Sesion 
 class SesionForm(forms.ModelForm):
     class Meta:
         model = SesionTerapeutica
@@ -114,7 +115,7 @@ class SesionForm(forms.ModelForm):
             'actividades': 'Actividades realizadas en la sesión',
         }
 
-
+#Formulario OIRS
 class OIRSMensajeForm(forms.ModelForm):
     class Meta:
         model = OIRS
@@ -153,6 +154,7 @@ class NotasPacienteForm(forms.ModelForm):
             'nota': forms.Textarea(attrs={'class': 'form-control'}),
         }
         
+#Formulario Mensaje
 class MensajeForm(forms.ModelForm):
     class Meta:
         model = Mensaje

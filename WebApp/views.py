@@ -98,6 +98,8 @@ def equipo(request):
 def nosotros(request):
     return render(request, 'nosotros.html')
 
+
+#Oirs
 def oirs(request):
     if request.user.is_authenticated and request.user.tipoUsuario.nombre_tipo_usuario == 'Gerencia':
         oirs_data = OIRS.objects.all()
@@ -180,7 +182,6 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
     else:
         return []
     
-    # Obtener la hora actual
     ahora = datetime.now().time()
     
     fecha_inicio = datetime.combine(fecha_reserva, time())
@@ -190,7 +191,6 @@ def obtener_horas_disponibles_para_doctor(doctor, fecha_reserva):
     todas_las_horas = []
     hora_actual = hora_inicio_dt
     while hora_actual < hora_fin_dt:
-        # Solo agregar las horas mayores a la hora actual si es el mismo día
         if fecha_reserva.date() > datetime.now().date() or (fecha_reserva.date() == datetime.now().date() and hora_actual.time() > ahora):
             todas_las_horas.append(hora_actual.strftime('%H:%M'))
         hora_actual += timedelta(hours=1)
@@ -621,7 +621,6 @@ def formLenguaje(request, id):
                     )
                     respuesta.save()
                 except IntegrityError:
-                    # Si ya existe una respuesta, la actualizamos
                     respuesta = RespuestaFormulario.objects.get(pregunta=pregunta, paciente=paciente)
                     respuesta.respuesta = respuesta_text
                     respuesta.fechaRespuesta = timezone.now()
@@ -707,7 +706,7 @@ def detalleSesion(request, id):
 #Buscar Paciente
 @login_required
 def busquedaPaciente(request):
-    rut = request.GET.get('rut', '')  # Default to empty string if 'rut' is not provided
+    rut = request.GET.get('rut', '')
     pacientes = Paciente.objects.all()
     
     if rut:
@@ -916,7 +915,7 @@ def export_data_to_excel(request):
     paciente_sheet = workbook.create_sheet(title='Pacientes')
     reserva_sheet = workbook.create_sheet(title='Reservas')
 
-    # Definir estilos
+    # Estilos
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
     thin_border = Border(left=Side(style='thin'), 
@@ -953,7 +952,6 @@ def export_data_to_excel(request):
         for i, width in enumerate(widths, start=1):
             sheet.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
 
-    # Obtener los datos de los modelos y escribirlos en las hojas con estilos
     for fono in Fonoaudiologo.objects.all():
         row = [
             fono.id, 
@@ -993,9 +991,9 @@ def export_data_to_excel(request):
     for reserva in ReservaHora.objects.all():
         row = [
             reserva.id, 
-            reserva.fecha.strftime('%Y-%m-%d'),  # Formatear fecha
-            reserva.hora.strftime('%H:%M:%S'),  # Formatear hora
-            str(reserva.fonoaudiologo),  # Convertir objeto a cadena
+            reserva.fecha.strftime('%Y-%m-%d'),
+            reserva.hora.strftime('%H:%M:%S'), 
+            str(reserva.fonoaudiologo),  
             reserva.nombrePaciente, 
             reserva.apellidoPaciente, 
             reserva.rutPaciente, 
@@ -1009,11 +1007,9 @@ def export_data_to_excel(request):
             cell.border = thin_border
             cell.alignment = alignment
 
-    # Obtener la fecha actual y formatearla en DD-MM-YYYY
     fecha_hoy = datetime.now().strftime('%d-%m-%Y')
     nombre_archivo = f'BaseDeDatos_{fecha_hoy}.xlsx'
 
-    # Configurar la respuesta HTTP para la descarga del archivo
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
     messages.success(request, 'Datos exportados correctamente.')
@@ -1069,7 +1065,7 @@ def exportar_reservas_pdf(request):
 
     styles = getSampleStyleSheet()
     title_style = styles['Title']
-    title_style.alignment = 1  # Center alignment
+    title_style.alignment = 1 
     elements.append(Paragraph("Reporte de Reservas", title_style))
 
     subtitle_style = styles['Normal']
@@ -1238,7 +1234,6 @@ def buzonMensajes(request):
     
     conversaciones = {}
     for mensaje in mensajes:
-        # Identificar destinatario correctamente
         destinatario = mensaje.receptor if mensaje.emisor == request.user.nombre + ' ' + request.user.apellido else mensaje.emisor
         if destinatario not in conversaciones or mensaje.fechaEnvio > conversaciones[destinatario].fechaEnvio:
             conversaciones[destinatario] = mensaje
