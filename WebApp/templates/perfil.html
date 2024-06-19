@@ -96,7 +96,7 @@
                 <td>
                     {% if reserva.estado == 'Asistida' %}
                     <button class="btn btn-success" disabled>Asistida</button>
-                    {% elif reserva.estado == 'No Asistida' %}
+                    {% elif reserva.estado == 'No Asistid' %}
                     <button class="btn btn-danger" disabled>No Asistida</button>
                     {% endif %}
                 </td>
@@ -159,7 +159,7 @@
                 {% if reserva.emailPaciente == user.email %}
                 <tr>
                     <td>{{ reserva.fecha }}</td>
-                    <td>{{ reserva.id }}</td>
+                    <td>{{ reserva.hora }}</td>
                     <td>{{ reserva.nombrePaciente }} {{ reserva.apellidoPaciente }}</td>
                     <td>
                         <a onclick="cancelarReserva('{{ reserva.id }}')" class="btn btn-danger">Cancelar</a>
@@ -201,8 +201,45 @@
                 confirmButtonText: "Sí, Cancelar",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirige a la URL de eliminación
                     window.location.href = "{% url 'cancelarReserva' 0 %}".replace(
+                        "0",
+                        idReserva
+                    );
+                }
+            });
+        }
+
+        function confirmarAsistencia(idReserva) {
+            Swal.fire({
+                title: "¿Estás seguro que desear confirmar la asistencia a esta reserva?",
+                text: "No podrás revertir esto",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#e7549c",
+                cancelButtonColor: "#c0bebf",
+                confirmButtonText: "Sí, confirmar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'confirmarAsistencia' 0 %}".replace(
+                        "0",
+                        idReserva
+                    );
+                }
+            });
+        }
+
+        function confirmarInasistencia(idReserva) {
+            Swal.fire({
+                title: "¿Estás seguro que desear confirmar la inasistencia de este paciente?",
+                text: "No podrás revertir esto",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#e7549c",
+                cancelButtonColor: "#c0bebf",
+                confirmButtonText: "Sí, confirmar",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'noAsistida' 0 %}".replace(
                         "0",
                         idReserva
                     );
