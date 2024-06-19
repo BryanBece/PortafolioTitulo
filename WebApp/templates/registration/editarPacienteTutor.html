@@ -108,24 +108,24 @@
                         <hr>
                         <h4>Datos Tutor</h4>
                         <div class="form-group">
-                            {{ formTut.nombre | as_crispy_field }}
+                            {{ formTut.nombreTutor | as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            {{ formTut.apellido | as_crispy_field }}
+                            {{ formTut.apellidoTutor | as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            {{ formTut.rut | as_crispy_field }}
+                            {{ formTut.rutTutor | as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            {{ formTut.genero | as_crispy_field }}
+                            {{ formTut.generoTutor | as_crispy_field }}
                         </div>
                         <div class="form-group">
-                            {{ formTut.telefono | as_crispy_field }}
+                            {{ formTut.telefonoTutor | as_crispy_field }}
                         </div>
                         <div class="form-group">
                             <label for="id_email">Email*</label>
-                            <input type="email" class="form-control" id="id_email" name="{{ formTut.email.name }}"
-                                value="{{ formTut.email.value }}" readonly>
+                            <input type="email" class="form-control" id="id_email" name="{{ formTut.emailTutor.name }}"
+                                value="{{ formTut.emailTutor.value }}" readonly>
                         </div>
                         <button type="submit" style="width: 100%; margin-top: 10px;"><i class="fas fa-save"></i> Guardar
                             Cambios </button>

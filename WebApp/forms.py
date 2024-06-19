@@ -61,12 +61,12 @@ class RegistroTutorForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['id']
         labels = {
-            'nombre': 'Nombre',
-            'apellido': 'Apellido',
-            'rut': 'Rut',
-            'genero': 'Genero',
-            'telefono': 'Telefono',
-            'email': 'Email',
+            'nombreTutor': 'Nombre',
+            'apellidoTutor': 'Apellido',
+            'rutTutor': 'Rut',
+            'generoTutor': 'Genero',
+            'telefonoTutor': 'Telefono',
+            'emailTutor': 'Email',
         }
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),

@@ -211,10 +211,10 @@ def reservaHora(request):
     
     if request.method == 'GET' and request.user.is_authenticated:
         if request.user.tipoUsuario.nombre_tipo_usuario == 'Tutor':
-            tutor = Tutor.objects.get(email=request.user.email)
+            tutor = Tutor.objects.get(emailTutor=request.user.email)
             paciente = Paciente.objects.get(tutor=tutor)
             data = {
-                'form': ReservaHoraForm(initial={'nombrePaciente': paciente.nombre, 'apellidoPaciente': paciente.apellido, 'rutPaciente': paciente.rut, 'telefonoPaciente': paciente.telefono, 'emailPaciente': paciente.tutor.email}),
+                'form': ReservaHoraForm(initial={'nombrePaciente': paciente.nombre, 'apellidoPaciente': paciente.apellido, 'rutPaciente': paciente.rut, 'telefonoPaciente': paciente.telefono, 'emailPaciente': paciente.tutor.emailTutor}),
                 'fecha_reserva': fecha_reserva,
                 'hora': hora,
                 'doctor': doctor
@@ -682,7 +682,7 @@ def sesionFono(request, id):
             try:
                 subject = 'Detalle de Sesión Fonoaudiológica'
                 html_message = render_to_string('atencion/detalleSesionEmail.html', {'sesion': sesion})
-                send_mail(subject, None, settings.EMAIL_HOST_USER, [paciente.tutor.email], html_message=html_message)
+                send_mail(subject, None, settings.EMAIL_HOST_USER, [paciente.tutor.emailTutor], html_message=html_message)
     
                 messages.success(request, 'Sesión guardada correctamente, el correo ha sido enviado al tutor')
                 
@@ -770,9 +770,9 @@ def registroPacienteTutor(request):
         formularioPaciente = RegistroPacienteForm(request.POST)
         formularioTutor = RegistroTutorForm(request.POST)
         if formularioPaciente.is_valid() and formularioTutor.is_valid():
-            nombreTutor = formularioTutor.cleaned_data.get('nombre')
-            apellidoTutor = formularioTutor.cleaned_data.get('apellido')
-            correoTutor = formularioTutor.cleaned_data.get('email')
+            nombreTutor = formularioTutor.cleaned_data.get('nombreTutor')
+            apellidoTutor = formularioTutor.cleaned_data.get('apellidoTutor')
+            correoTutor = formularioTutor.cleaned_data.get('emailTutor')
             
             if User.objects.filter(email=correoTutor).exists():
                 messages.error(request, "El correo del tutor ya está registrado.")
@@ -780,7 +780,7 @@ def registroPacienteTutor(request):
                 # Crear Tutor
                 formularioTutor.save()
                 
-                tut = Tutor.objects.get(email=correoTutor)
+                tut = Tutor.objects.get(emailTutor=correoTutor)
                 pac = Paciente()
                 pac.nombre = formularioPaciente.cleaned_data.get('nombre')
                 pac.apellido = formularioPaciente.cleaned_data.get('apellido')
@@ -834,7 +834,7 @@ def editarPacienteTutor(request, id):
         if formPac.is_valid() and formTut.is_valid():
             formPac.save()
             formTut.save()
-            log = Log(username=tutor.email, texto='Edición de Paciente y Tutor')
+            log = Log(username=tutor.emailTutor, texto='Edición de Paciente y Tutor')
             log.save()
             messages.success(request, 'Datos actualizados correctamente.')
             return redirect('fichaClinica', id=paciente.id)
@@ -944,7 +944,7 @@ def export_data_to_excel(request):
         'Fonoaudiologos': [5, 20, 20, 12, 10, 12, 25, 20],
         'Pacientes': [5, 20, 20, 15, 15, 10, 12, 30, 20, 20],
         'Reservas': [5, 12, 10, 20, 20, 20, 15, 12, 25, 10],
-        'Logs': [5, 20, 20, 30]
+        'Logs': [5, 40, 30, 50]
     }
 
     for sheet, widths in zip(sheets, column_widths.values()):
@@ -980,7 +980,7 @@ def export_data_to_excel(request):
             paciente.telefono,
             paciente.direccion,
             paciente.comuna.comuna,
-            paciente.tutor.nombre
+            paciente.tutor.nombreTutor
         ]
         paciente_sheet.append(row)
         for col in range(1, len(row) + 1):
@@ -1224,7 +1224,7 @@ def enviarMensaje(request):
             if form.is_valid():
                 mensaje = form.save(commit=False)
                 user = request.user.email
-                tutor = Tutor.objects.get(email=user)
+                tutor = Tutor.objects.get(emailTutor=user)
                 mensaje.paciente = Paciente.objects.get(tutor=tutor)
                 fonoaudiologo_id = request.POST.get('fonoaudiologo')
                 fonoaudiologo = Fonoaudiologo.objects.get(pk=fonoaudiologo_id)

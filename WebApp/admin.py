@@ -35,8 +35,8 @@ class PacienteAdmin(admin.ModelAdmin):
     
 @admin.register(Tutor)
 class TutorAdmin(admin.ModelAdmin):
-    list_display = ['id','nombre', 'apellido', 'rut', 'genero', 'telefono', 'email']
-    search_fields = ['nombre', 'apellido', 'rut', 'genero', 'telefono', 'email']
+    list_display = ['id','nombreTutor', 'apellidoTutor', 'rutTutor', 'generoTutor', 'telefonoTutor', 'emailTutor']
+    search_fields = ['nombreTutor', 'apellidoTutor', 'rutTutor', 'generoTutor', 'telefonoTutor', 'emailTutor']
     
 @admin.register(HorasTrabajo)
 class HorasTrabajoAdmin(admin.ModelAdmin):
