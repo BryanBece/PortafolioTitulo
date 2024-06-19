@@ -419,74 +419,9 @@ def registroFono(request):
 #Comunas
 def obtener_comunas(request):
     region_id = request.GET.get('region_id')
-    comunas = Comuna.objects.filter(region_id=region_id).values('id', 'comuna')
+    comunas = Comuna.objects.filter(region_id=region_id).values('id', 'comuna').order_by('comuna')
     return JsonResponse(list(comunas), safe=False)
 
-#Registro Paciente-Tutor
-@login_required
-def registroPacienteTutor(request):
-    data = {
-        "regiones": Region.objects.all(),
-        'formPac': RegistroPacienteForm(),
-        'formTut': RegistroTutorForm(),
-        'rut': request.GET.get('rut')
-    }
-    
-    if request.method == 'POST':
-        formularioPaciente = RegistroPacienteForm(request.POST)
-        formularioTutor = RegistroTutorForm(request.POST)
-        if formularioPaciente.is_valid() and formularioTutor.is_valid():
-            nombreTutor = formularioTutor.cleaned_data.get('nombre')
-            apellidoTutor = formularioTutor.cleaned_data.get('apellido')
-            correoTutor = formularioTutor.cleaned_data.get('email')
-            
-            if User.objects.filter(email=correoTutor).exists():
-                messages.error(request, "El correo del tutor ya está registrado.")
-            else:
-                # Crear Tutor
-                formularioTutor.save()
-                
-                tut = Tutor.objects.get(email=correoTutor)
-                pac = Paciente()
-                pac.nombre = formularioPaciente.cleaned_data.get('nombre')
-                pac.apellido = formularioPaciente.cleaned_data.get('apellido')
-                pac.rut = formularioPaciente.cleaned_data.get('rut')
-                pac.fechaNacimiento = formularioPaciente.cleaned_data.get('fechaNacimiento')
-                pac.genero = formularioPaciente.cleaned_data.get('genero')
-                pac.telefono = formularioPaciente.cleaned_data.get('telefono')
-                pac.direccion = formularioPaciente.cleaned_data.get('direccion')
-                pac.comuna = formularioPaciente.cleaned_data.get('comuna')
-                pac.tutor = tut
-                pac.save()
-                
-                # Crear un nuevo usuario
-                usuTut = User()
-                usuTut.username = correoTutor
-                usuTut.email = correoTutor
-                usuTut.nombre = nombreTutor
-                usuTut.apellido = apellidoTutor
-                tipo_usuario_tutor = tipo_usuario.objects.get(nombre_tipo_usuario='Tutor')
-                usuTut.tipoUsuario = tipo_usuario_tutor
-                usuTut.save()
-                
-                # Enviar correo de bienvenida y restablecimiento de contraseña
-                token = default_token_generator.make_token(usuTut)
-                reset_url = reverse('setPassword', args=[usuTut.id, token])
-                link = request.build_absolute_uri(reset_url)
-                subject = 'Bienvenido a COFAM - Configura tu Contraseña'
-                html_message = render_to_string('registration/correoBienvenida.html', {'nombre': nombreTutor, 'link': link})
-                send_mail(subject, None, settings.EMAIL_HOST_USER, [correoTutor], html_message=html_message)
-                
-                log = Log(username = correoTutor, texto = 'Registro de Paciente y Tutor')
-                log.save()
-                
-                messages.success(request, f'Paciente {pac.nombre} y Tutor {nombreTutor} creados. Se ha enviado un correo para configurar la contraseña.')
-                return redirect('fichaClinica', id=pac.id)
-            
-        else:
-            data["formPac"] = formularioPaciente
-            data["formTut"] = formularioTutor
-    return render(request, 'registration/registroPacienteTutor.html', data)
 
 # ------------------- Formularios Evaluación -------------------
 
@@ -898,13 +833,10 @@ def editarPacienteTutor(request, id):
         formPac = RegistroPacienteForm(request.POST, instance=paciente)
         formTut = RegistroTutorForm(request.POST, instance=tutor)
         if formPac.is_valid() and formTut.is_valid():
-            
             formPac.save()
             formTut.save()
-            
             log = Log(username=tutor.email, texto='Edición de Paciente y Tutor')
             log.save()
-            
             messages.success(request, 'Datos actualizados correctamente.')
             return redirect('fichaClinica', id=paciente.id)
         else:
@@ -917,8 +849,12 @@ def editarPacienteTutor(request, id):
         'formPac': formPac,
         'formTut': formTut,
         'regiones': Region.objects.all(),
-        'paciente': paciente
+        'paciente': paciente,
+        'paciente_region_id': paciente.comuna.region.id if paciente.comuna else None,
+        'paciente_comuna_id': paciente.comuna.id if paciente.comuna else None
     })
+
+
 
 #Listar Fonos
 @login_required

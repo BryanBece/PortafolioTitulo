@@ -20,7 +20,7 @@ urlpatterns = [
     # Reserva
     path('calendario/', calendario, name='calendario'),
     path('ver-horas-disponibles/', ver_horas_disponibles, name='ver_horas_disponibles'),
-    path('reservar-hora/', reservaHora, name='reservar_hora'),
+    path('reservarHora/', reservaHora, name='reservar_hora'),
     path('cancelarReserva/<int:id>', cancelarReserva, name='cancelarReserva'),
     path('confirmarAsistencia/<int:id>', sesionAsistida, name='confirmarAsistencia'),
     path('noAsistida/<int:id>', sesionNoAsistida, name='noAsistida'),
@@ -30,10 +30,10 @@ urlpatterns = [
     path('editarFono/<int:id>/', editarFono, name='editarFono'),
     path('eliminarFono/<int:id>/', eliminar_fono, name='eliminarFono'),
     # Comunas
-    path('obtener_comunas/', obtener_comunas, name='obtener_comunas'),
+    path('obtenerComunas/', obtener_comunas, name='obtener_comunas'),
     # RegistroPaciente - Tutor
     path('registroPaciente/', registroPacienteTutor, name='registroPaciente'),
-    path('editar_paciente_tutor/<int:id>/', editarPacienteTutor, name='editar_paciente_tutor'),
+    path('editarPacienteTutor/<int:id>/', editarPacienteTutor, name='editar_paciente_tutor'),
     # Reset Password
     path('resetearContrasena/', resetearContrasena, name='resetearContrasena'),
     path('restablecerContrasena/<int:id>/<str:token>/', restablecerContrasena, name='restablecerContrasena'),
@@ -48,7 +48,7 @@ urlpatterns = [
     path('formLenguaje/<int:id>', formLenguaje, name='formLenguaje'),
     # Atencion
     path('busquedaPaciente/', busquedaPaciente, name='busquedaPaciente'),
-    path('buscar_paciente/', views.buscar_paciente, name='buscar_paciente'),
+    path('buscarPaciente/', views.buscar_paciente, name='buscar_paciente'),
     path('fichaClinica/<int:id>', fichaClinica, name='fichaClinica'),
     path('sesion/<int:id>', sesionFono, name='sesion'),
     path('detalleSesion/<int:id>/', detalleSesion, name='detalleSesion'),

@@ -10,7 +10,7 @@
         $('#id_region').change(function () {
             var region_id = $(this).val();
             $.ajax({
-                url: '/obtener_comunas/',
+                url: '/obtenerComunas/',
                 data: {
                     'region_id': region_id
                 },

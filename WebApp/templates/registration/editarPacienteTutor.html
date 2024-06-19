@@ -6,30 +6,44 @@
 {% block content %}
 
 <script>
-    // Función para obtener las comunas de una región
     $(document).ready(function () {
-        $('#id_region').change(function () {
-            var region_id = $(this).val();
+        // Función para obtener las comunas de una región
+        function cargarComunas(region_id, selected_comuna_id) {
             $.ajax({
-                url: '/obtener_comunas/',
+                url: '/obtenerComunas/',
                 data: {
                     'region_id': region_id
                 },
                 dataType: 'json',
                 success: function (data) {
                     $('#id_comuna').empty();
+                    $('#id_comuna').append('<option value="">Seleccione una comuna</option>');
                     $.each(data, function (index, comuna) {
                         $('#id_comuna').append($('<option>', {
                             value: comuna.id,
                             text: comuna.comuna
                         }));
                     });
+                    if (selected_comuna_id) {
+                        $('#id_comuna').val(selected_comuna_id);
+                    }
                 }
             });
+        }
+
+        $('#id_region').change(function () {
+            var region_id = $(this).val();
+            cargarComunas(region_id, null);
         });
-    });
-    // Función para mostrar el datepicker
-    $(document).ready(function(){
+
+        // Cargar comunas al cargar la página si hay una región seleccionada
+        var initial_region_id = '{{ paciente_region_id }}';
+        var initial_comuna_id = '{{ paciente_comuna_id }}';
+        if (initial_region_id) {
+            cargarComunas(initial_region_id, initial_comuna_id);
+        }
+
+        // Función para mostrar el datepicker
         $('.datepicker').datepicker({
             format: 'dd/mm/yyyy',
             autoclose: true,
@@ -73,7 +87,7 @@
                             <select class="form-control" name="region" id="id_region">
                                 <option value="">Seleccione una región</option>
                                 {% for region in regiones %}
-                                <option value="{{ region.id }}">{{ region.region }}</option>
+                                <option value="{{ region.id }}" {% if region.id == paciente_region_id %}selected{% endif %}>{{ region.region }}</option>
                                 {% endfor %}
                             </select>
                         </div>
