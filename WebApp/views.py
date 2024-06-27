@@ -539,9 +539,18 @@ def formComunicativo(request, id):
     respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=1)
     
     if request.method == 'POST':
+        all_answered = True
         for pregunta in preguntas:
             respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            if respuesta_value:
+            if respuesta_value is None:
+                all_answered = False
+                break
+        
+        if not all_answered:
+            messages.error(request, 'Por favor, responda todas las preguntas.')
+        else:
+            for pregunta in preguntas:
+                respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
                 respuesta, created = RespuestaFormulario.objects.get_or_create(
                     pregunta=pregunta,
                     paciente=paciente,
@@ -553,8 +562,8 @@ def formComunicativo(request, id):
                 respuesta.respuesta = (respuesta_value == 'si')
                 respuesta.fechaRespuesta = timezone.now()
                 respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
+            messages.success(request, 'Respuestas guardadas correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
     
     # Si hay respuestas, las mostramos
     if respuestas:
@@ -570,9 +579,18 @@ def formSocial(request, id):
     respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=2)
     
     if request.method == 'POST':
+        all_answered = True
         for pregunta in preguntas:
             respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            if respuesta_value:
+            if respuesta_value is None or respuesta_value == "":
+                all_answered = False
+                break
+        
+        if not all_answered:
+            messages.error(request, 'Por favor, responda todas las preguntas seleccionando una opción válida.')
+        else:
+            for pregunta in preguntas:
+                respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
                 if respuesta_value == 'Otro':
                     respuesta_value = request.POST.get(f'otro_{pregunta.id}', '')
 
@@ -587,8 +605,8 @@ def formSocial(request, id):
                 respuesta.respuesta = respuesta_value
                 respuesta.fechaRespuesta = timezone.now()
                 respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
+            messages.success(request, 'Respuestas guardadas correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
     
     # Si hay respuestas, las mostramos
     if respuestas.exists():
@@ -604,10 +622,19 @@ def formLenguaje(request, id):
     respuestas = RespuestaFormulario.objects.filter(paciente=paciente, pregunta__formulario_id=3)
     
     if request.method == 'POST':
+        all_answered = True
         for pregunta in preguntas:
             respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
-            observacion_value = request.POST.get(f'observacion_{pregunta.id}')
-            if respuesta_value:
+            if respuesta_value is None:
+                all_answered = False
+                break
+
+        if not all_answered:
+            messages.error(request, 'Por favor, responda todas las preguntas.')
+        else:
+            for pregunta in preguntas:
+                respuesta_value = request.POST.get(f'pregunta_{pregunta.id}')
+                observacion_value = request.POST.get(f'observacion_{pregunta.id}', '')
                 respuesta_text = respuesta_value
                 if observacion_value:
                     respuesta_text += f" - Obs: {observacion_value}"
@@ -625,8 +652,8 @@ def formLenguaje(request, id):
                     respuesta.respuesta = respuesta_text
                     respuesta.fechaRespuesta = timezone.now()
                     respuesta.save()
-        messages.success(request, 'Respuestas guardadas correctamente.')
-        return redirect('fichaClinica', id=paciente.id)
+            messages.success(request, 'Respuestas guardadas correctamente.')
+            return redirect('fichaClinica', id=paciente.id)
     
     # Si hay respuestas, las mostramos
     if respuestas.exists():
@@ -661,6 +688,7 @@ def notasPaciente(request, id):
 
 #Sesión Fonoaudiologica
 @login_required
+@login_required
 def sesionFono(request, id):
     paciente = get_object_or_404(Paciente, id=id)
     fono = Fonoaudiologo.objects.get(email=request.user.email)
@@ -687,12 +715,12 @@ def sesionFono(request, id):
                 messages.success(request, 'Sesión guardada correctamente, el correo ha sido enviado al tutor')
                 
             except Exception as e:
-                messages.error(request, 'Error al guardar la sesión')
+                messages.error(request, f'Error al guardar la sesión: {e}')
             
             return redirect('fichaClinica', id=paciente.id)  
-    else:
-        form = SesionForm(initial={'paciente': paciente, 'tutor': paciente.tutor})
-        
+        else:
+            messages.error(request, 'Debe completar todos los campos')
+    
     return render(request, 'atencion/sesion.html', data)
 
 #Detalle Sesion

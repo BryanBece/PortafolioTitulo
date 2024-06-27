@@ -24,12 +24,12 @@
                 </div>
                 <div class="col-md-6">
                     <h4 class="card-title">Datos del Tutor</h4>
-                    <p class="card-text"><strong>Nombre:</strong> {{ paciente.tutor.nombre }}</p>
-                    <p class="card-text"><strong>Apellido:</strong> {{ paciente.tutor.apellido }}</p>
-                    <p class="card-text"><strong>RUT:</strong> {{ paciente.tutor.rut }}</p>
-                    <p class="card-text"><strong>Género:</strong> {{ paciente.tutor.genero.genero }}</p>
-                    <p class="card-text"><strong>Teléfono:</strong> {{ paciente.tutor.telefono }}</p>
-                    <p class="card-text"><strong>Email:</strong> {{ paciente.tutor.email }}</p>
+                    <p class="card-text"><strong>Nombre:</strong> {{ paciente.tutor.nombreTutor }}</p>
+                    <p class="card-text"><strong>Apellido:</strong> {{ paciente.tutor.apellidoTutor }}</p>
+                    <p class="card-text"><strong>RUT:</strong> {{ paciente.tutor.rutTutor }}</p>
+                    <p class="card-text"><strong>Género:</strong> {{ paciente.tutor.generoTutor}}</p>
+                    <p class="card-text"><strong>Teléfono:</strong> {{ paciente.tutor.telefonoTutor }}</p>
+                    <p class="card-text"><strong>Email:</strong> {{ paciente.tutor.emailTutor }}</p>
                 </div>
             </div>
         </div>
@@ -42,10 +42,14 @@
             <form id="sesionForm" method="post">
                 {% csrf_token %}
                 {{ form|crispy }}
-                <button type="submit" class="btn btn-success mt-3" onclick="confirmarGuardado(event)">Guardar Sesión</button>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-success" onclick="confirmarGuardado(event)">Guardar Sesión</button>
+                    <a href="{% url 'fichaClinica' paciente.id %}" class="btn btn-secondary">Volver</a>
+                </div>
             </form>
         </div>
     </div>
+    
 </div>
 
 <script>
