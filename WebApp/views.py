@@ -9,6 +9,11 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages  # Para mostrar mensajes de éxito, error, etc.
+from django.core.exceptions import ValidationError
+from django.utils.timezone import now
+import re
+from django.contrib.auth.password_validation import validate_password
+
 
 # Envío de correo electrónico
 from django.core.mail import send_mail
@@ -310,18 +315,25 @@ def restablecerContrasena(request, id, token):
         password2 = request.POST.get('password2')
         
         if password == password2:
-            user = User.objects.get(id=id)
-            if default_token_generator.check_token(user, token):
-                user.set_password(password)
-                user.save()
-                
-                log = Log(username = user.email, texto = 'Restablecimiento de Contraseña')
-                log.save()
-                
-                messages.success(request, 'Contraseña restablecida con éxito')
-                return redirect('login')
-            else:
-                messages.error(request, 'Token inválido')
+            try:
+                user = User.objects.get(id=id)
+                if default_token_generator.check_token(user, token):
+                    # Validar la contraseña utilizando las validaciones de Django
+                    validate_password(password, user=user)
+                    
+                    user.set_password(password)
+                    user.save()
+                    
+                    log = Log(username=user.email, texto='Restablecimiento de Contraseña')
+                    log.save()
+                    
+                    messages.success(request, 'Contraseña restablecida con éxito')
+                    return redirect('login')
+                else:
+                    messages.error(request, 'Token inválido')
+            except ValidationError as e:
+                for error in e:
+                    messages.error(request, error)
         else:
             messages.error(request, 'Las contraseñas no coinciden')
     
@@ -769,16 +781,24 @@ def nuevaContrasenia(request, id, token):
             password = request.POST.get('password')
             password2 = request.POST.get('password2')
             if password == password2:
-                user.set_password(password)
-                user.save()
-                
-                log = Log(username = user.email, texto = 'Asignación de Contraseña')
-                log.save()
-                
-                messages.success(request, 'Tu contraseña ha sido establecida con éxito.')
-                return redirect('login')
-        else:
-            return render(request, 'registration/nuevaContrasenia.html')
+                try:
+                    # Usar la función de validación de contraseñas de Django
+                    validate_password(password, user=user)
+                    
+                    user.set_password(password)
+                    user.save()
+
+                    log = Log(username=user.email, texto='Asignación de Contraseña')
+                    log.save()
+
+                    messages.success(request, 'Tu contraseña ha sido establecida con éxito.')
+                    return redirect('login')
+                except ValidationError as e:
+                    for error in e:
+                        messages.error(request, error)
+            else:
+                messages.error(request, 'Las contraseñas no coinciden.')
+        return render(request, 'registration/nuevaContrasenia.html')
     else:
         messages.error(request, 'El enlace de Asignación de contraseña no es válido, posiblemente ha caducado.')
 
@@ -798,6 +818,14 @@ def registroPacienteTutor(request):
         formularioPaciente = RegistroPacienteForm(request.POST)
         formularioTutor = RegistroTutorForm(request.POST)
         if formularioPaciente.is_valid() and formularioTutor.is_valid():
+            # Validar fecha de nacimiento
+            fecha_nacimiento = formularioPaciente.cleaned_data.get('fechaNacimiento')
+            if fecha_nacimiento >= now().date():
+                messages.error(request, "La fecha de nacimiento debe ser anterior a hoy.")
+                data["formPac"] = formularioPaciente
+                data["formTut"] = formularioTutor
+                return render(request, 'registration/registroPacienteTutor.html', data)
+            
             nombreTutor = formularioTutor.cleaned_data.get('nombreTutor')
             apellidoTutor = formularioTutor.cleaned_data.get('apellidoTutor')
             correoTutor = formularioTutor.cleaned_data.get('emailTutor')
