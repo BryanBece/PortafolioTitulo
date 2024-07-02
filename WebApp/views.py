@@ -700,40 +700,46 @@ def notasPaciente(request, id):
 
 #Sesión Fonoaudiologica
 @login_required
-@login_required
 def sesionFono(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
-    fono = Fonoaudiologo.objects.get(email=request.user.email)
-    data = {
-        'form': SesionForm(),
-        'paciente': paciente
-    }
     
-    if request.method == 'POST':
-        form = SesionForm(request.POST)
-        if form.is_valid():
-            sesion = form.save(commit=False)
-            sesion.fonoaudiologo = fono
-            sesion.paciente = paciente
-            sesion.tutor = paciente.tutor
-            sesion.fecha = timezone.now()
-            sesion.save()
-            
-            try:
-                subject = 'Detalle de Sesión Fonoaudiológica'
-                html_message = render_to_string('atencion/detalleSesionEmail.html', {'sesion': sesion})
-                send_mail(subject, None, settings.EMAIL_HOST_USER, [paciente.tutor.emailTutor], html_message=html_message)
-    
-                messages.success(request, 'Sesión guardada correctamente, el correo ha sido enviado al tutor')
+    if request.user.tipoUsuario.nombre_tipo_usuario == 'Fonoaudiologo':
+
+        paciente = get_object_or_404(Paciente, id=id)
+        fono = Fonoaudiologo.objects.get(email=request.user.email)
+        data = {
+            'form': SesionForm(),
+            'paciente': paciente
+        }
+        
+        if request.method == 'POST':
+            form = SesionForm(request.POST)
+            if form.is_valid():
+                sesion = form.save(commit=False)
+                sesion.fonoaudiologo = fono
+                sesion.paciente = paciente
+                sesion.tutor = paciente.tutor
+                sesion.fecha = timezone.now()
+                sesion.save()
                 
-            except Exception as e:
-                messages.error(request, f'Error al guardar la sesión: {e}')
-            
-            return redirect('fichaClinica', id=paciente.id)  
-        else:
-            messages.error(request, 'Debe completar todos los campos')
+                try:
+                    subject = 'Detalle de Sesión Fonoaudiológica'
+                    html_message = render_to_string('atencion/detalleSesionEmail.html', {'sesion': sesion})
+                    send_mail(subject, None, settings.EMAIL_HOST_USER, [paciente.tutor.emailTutor], html_message=html_message)
+        
+                    messages.success(request, 'Sesión guardada correctamente, el correo ha sido enviado al tutor')
+                    
+                except Exception as e:
+                    messages.error(request, f'Error al guardar la sesión: {e}')
+                
+                return redirect('fichaClinica', id=paciente.id)  
+            else:
+                messages.error(request, 'Debe completar todos los campos')
+        
+        return render(request, 'atencion/sesion.html', data)
     
-    return render(request, 'atencion/sesion.html', data)
+    else:
+        messages.error(request, 'Solo los Fonoaudiologos pueden crear sesiones')
+        return redirect('fichaClinica', id=id)
 
 #Detalle Sesion
 @login_required
