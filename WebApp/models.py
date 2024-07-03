@@ -146,7 +146,7 @@ class SesionTerapeutica(models.Model):
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f'{self.fonoaudiologo} - {self.paciente} - {self.fecha} - {self.hora}'
+        return f'{self.fonoaudiologo} - {self.paciente} - {self.fecha}'
     
     
 #Formulario

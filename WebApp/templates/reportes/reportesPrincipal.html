@@ -20,24 +20,79 @@
             </a>
         </div>
         <div class="m-2">
-            <a href="{% url 'exportar_datos' %}" class="btn btn-primary">
+            <a href="#" class="btn btn-primary" id="export-data-btn">
                 <i class="fa fa-database"></i> Base De Datos
             </a>
-        </div>        
+        </div>
     </div>
 </div>
 
+<!-- Loader -->
+<div id="loader" class="loader" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Incluye SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+document.getElementById('export-data-btn').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('loader').style.display = 'block';
+    fetch('{% url "exportar_datos" %}', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => {
+        document.getElementById('loader').style.display = 'none';
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        const fechaHoy = new Date().toLocaleDateString('es-CL'); // Obtener la fecha de hoy en formato dd/mm/aaaa
+        a.download = `BaseDeDatos_${fechaHoy}.xlsx`;
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Datos exportados correctamente.'
+        });
+    })
+    .catch(error => {
+        document.getElementById('loader').style.display = 'none';
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Hubo un problema al exportar los datos.'
+        });
+    });
+});
+</script>
+
 <style>
-    #container {
-        height: 80vh;
-    }
-    .btn {
-        white-space: nowrap;
-    }
-    .report-image {
-        max-width: 50%;
-        height: auto; 
-        background-color: transparent;
+    .loader {
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
     }
 </style>
+
+
 {% endblock %}

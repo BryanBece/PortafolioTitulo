@@ -31,8 +31,10 @@ from .forms import *
 from user.models import *
 
 # Manipulación de archivos Excel
+import os
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+from django.utils import formats
 
 # Generación de archivos PDF
 from reportlab.lib.pagesizes import letter, landscape
@@ -966,7 +968,8 @@ def reportePrincipal(request):
     else:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('perfil')
-    
+
+#Excel
 @login_required
 def export_data_to_excel(request):
     # Crear un libro de trabajo y hojas
@@ -1042,7 +1045,7 @@ def export_data_to_excel(request):
             paciente.telefono,
             paciente.direccion,
             paciente.comuna.comuna,
-            paciente.tutor.nombreTutor
+            paciente.tutor.nombreTutor + ' ' + paciente.tutor.apellidoTutor
         ]
         paciente_sheet.append(row)
         for col in range(1, len(row) + 1):
@@ -1083,13 +1086,16 @@ def export_data_to_excel(request):
             cell.border = thin_border
             cell.alignment = alignment
 
-    fecha_hoy = datetime.now().strftime('%d-%m-%Y')
+    fecha_hoy = formats.date_format(datetime.now(), format='d/m/Y')
     nombre_archivo = f'BaseDeDatos_{fecha_hoy}.xlsx'
 
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename={nombre_archivo}'
-    messages.success(request, 'Datos exportados correctamente.')
-    workbook.save(response)
+    # Guardar el libro de trabajo en memoria
+    file_buffer = BytesIO()
+    workbook.save(file_buffer)
+    file_buffer.seek(0)
+
+    response = HttpResponse(file_buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
 
     return response
 
